@@ -24,24 +24,33 @@
     --shadow: rgba(43,42,40,0.18);
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --paper:#1D1B17;
-      --paper-2:#26231D;
-      --paper-3:#302C24;
-      --ink:#ECE5D3;
-      --ink-soft:#A79E8B;
-      --ink-faint:#736C5C;
-      --green:#7AA57F;
-      --green-soft:#7AA57F55;
-      --gold:#E0A83F;
-      --gold-soft:#E0A83F55;
-      --berry:#E4807F;
-      --line: rgba(236,229,211,0.14);
-      --shadow: rgba(0,0,0,0.4);
-      color-scheme: dark;
-    }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    /* Backgrounds: Warm, high-end light paper hues */
+    --paper: #FAF6EE;          /* Crisp vintage cream paper background */
+    --paper-2: #F3ECE0;        /* Slightly darker layered paper or card fill */
+    --paper-3: #EAE0D0;        /* Deepest paper shade for borders or accents */
+    
+    /* Text/Typography: Rich dark ink for high contrast */
+    --ink: #2B261F;            /* Deep charcoal espresso ink for main text */
+    --ink-soft: #6E6557;       /* Soft charcoal-brown for secondary text */
+    --ink-faint: #A39989;      /* Faint grey-brown for placeholder text */
+    
+    /* Functional UI Accent Colors (Brightened for a light background) */
+    --green: #3F5D42;          /* Sage / Forest Green */
+    --green-soft: #3F5D4255;   /* Faded Sage Green (~33% opacity) */
+    --gold: #B07F1F;           /* Ochre Gold */
+    --gold-soft: #B07F1F55;    /* Faded Ochre Gold (~33% opacity) */
+    --berry: #A63D40;          /* Terracotta Red */
+    
+    /* Utility Styles */
+    --line: rgba(43, 38, 31, 0.12); /* Subtle, elegant dark separator lines */
+    --shadow: rgba(43, 38, 31, 0.08); /* Soft, natural paper shadow */
+    
+    color-scheme: light;
   }
+}
+  
   :root[data-theme="dark"]{
     --paper:#1D1B17;
     --paper-2:#26231D;
