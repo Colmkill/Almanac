@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Almanac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E8E2D0;
+    --paper-2:#DED6C0;
+    --paper-3:#D2C9B0;
+    --ink:#2B2A28;
+    --ink-soft:#6E6A5D;
+    --ink-faint:#9A9484;
+    --green:#3F5D42;
+    --green-soft:#3F5D4266;
+    --gold:#B07F1F;
+    --gold-soft:#B07F1F55;
+    --berry:#A63D40;
+    --line: rgba(43,42,40,0.14);
+    --shadow: rgba(43,42,40,0.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1D1B17;
+      --paper-2:#26231D;
+      --paper-3:#302C24;
+      --ink:#ECE5D3;
+      --ink-soft:#A79E8B;
+      --ink-faint:#736C5C;
+      --green:#7AA57F;
+      --green-soft:#7AA57F55;
+      --gold:#E0A83F;
+      --gold-soft:#E0A83F55;
+      --berry:#E4807F;
+      --line: rgba(236,229,211,0.14);
+      --shadow: rgba(0,0,0,0.4);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1D1B17;
+    --paper-2:#26231D;
+    --paper-3:#302C24;
+    --ink:#ECE5D3;
+    --ink-soft:#A79E8B;
+    --ink-faint:#736C5C;
+    --green:#7AA57F;
+    --green-soft:#7AA57F55;
+    --gold:#E0A83F;
+    --gold-soft:#E0A83F55;
+    --berry:#E4807F;
+    --line: rgba(236,229,211,0.14);
+    --shadow: rgba(0,0,0,0.4);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans', system-ui, sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{ font-family:'Newsreader', Georgia, serif; }
+
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    padding:28px 18px 100px;
+    min-height:100vh;
+  }
+
+  /* header */
+  header{ margin-bottom:18px; }
+  .title-row{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+  }
+  h1{
+    font-family:'Newsreader', Georgia, serif;
+    font-weight:500; font-style:italic;
+    font-size:2rem; margin:0; letter-spacing:-0.01em;
+  }
+  .today-pill{
+    font-size:0.78rem; color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .subline{ color:var(--ink-soft); font-size:0.92rem; margin-top:4px; min-height:1.3em; }
+
+  .month-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:22px 0 10px;
+  }
+  .month-nav .label{
+    font-family:'Newsreader', Georgia, serif; font-size:1.3rem; font-weight:500;
+  }
+  .nav-btns{ display:flex; gap:6px; }
+  .nav-btns button, .today-btn{
+    border:1px solid var(--line); background:var(--paper-2); color:var(--ink);
+    width:34px; height:34px; border-radius:8px; font-size:1rem;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .today-btn{ width:auto; padding:0 12px; font-size:0.82rem; font-family:'Work Sans'; }
+  .nav-btns button:active, .today-btn:active{ background:var(--paper-3); }
+
+  .weekdays{
+    display:grid; grid-template-columns:repeat(7,1fr);
+    text-align:center; color:var(--ink-faint); font-size:0.75rem;
+    padding:4px 0; margin-bottom:2px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    grid-auto-rows:minmax(56px,auto);
+    position:relative;
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+  }
+  .cell{
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:5px 4px 6px;
+    position:relative;
+    cursor:pointer;
+    display:flex; flex-direction:column; gap:4px;
+    min-width:0;
+  }
+  .cell:active{ background:var(--paper-2); }
+  .cell .num{ font-size:0.8rem; color:var(--ink-soft); }
+  .cell.out .num{ color:var(--ink-faint); opacity:0.5; }
+  .cell.today .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--ink); color:var(--paper); font-weight:600;
+  }
+  .dots{ display:flex; gap:3px; flex-wrap:wrap; margin-top:auto; }
+
+  .dot{
+    width:9px; height:9px; border-radius:50%;
+    border:1.6px solid var(--gold);
+    background:transparent;
+    position:relative;
+    flex:none;
+  }
+  .dot.reminder{ background:var(--gold); }
+  .dot.reminder::after{
+    content:''; position:absolute; top:-3px; right:-3px;
+    width:5px; height:5px; border-radius:50%; background:var(--berry);
+  }
+
+  .range-bar{
+    align-self:end;
+    height:9px;
+    background:var(--green-soft);
+    border-top:1.4px solid var(--green);
+    border-bottom:1.4px solid var(--green);
+    margin-bottom:4px;
+  }
+  .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
+  .range-bar.cap-end{ border-right:1.4px solid var(--green); border-top-right-radius:5px; border-bottom-right-radius:5px; margin-right:2px; }
+  .range-bar.active{ background:var(--green); }
+  .range-bar.reminder{ box-shadow: inset 0 0 0 2px var(--berry); }
+
+  /* upcoming */
+  .upcoming{ margin-top:30px; }
+  .upcoming h2{
+    font-family:'Newsreader', Georgia, serif; font-weight:500; font-size:1.15rem;
+    margin:0 0 12px;
+  }
+  .empty{
+    color:var(--ink-soft); font-size:0.92rem; padding:18px 0;
+    border-top:1px solid var(--line);
+  }
+  .item-list{ list-style:none; margin:0; padding:0; }
+  .item{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 4px; border-top:1px solid var(--line);
+    cursor:pointer;
+  }
+  .item:active{ background:var(--paper-2); }
+  .item .mark{
+    width:11px; height:11px; border-radius:50%; flex:none;
+    border:1.6px solid var(--gold); background:transparent;
+  }
+  .item .mark.range{ border-radius:3px; }
+  .item .mark.solid{ background:var(--gold); }
+  .item .mark.range.solid{ background:var(--green); border-color:var(--green); }
+  .item .mark:not(.range){ border-color:var(--gold); }
+  .item-body{ flex:1; min-width:0; }
+  .item-name{ font-size:0.96rem; }
+  .item-when{ font-size:0.8rem; color:var(--ink-soft); }
+  .item-badge{
+    font-size:0.72rem; padding:3px 8px; border-radius:20px;
+    background:var(--berry); color:var(--paper); white-space:nowrap; flex:none;
+  }
+  .item-badge.active{ background:var(--green); }
+
+  /* fab */
+  .fab{
+    position:fixed; right:20px; bottom:26px;
+    width:54px; height:54px; border-radius:50%;
+    background:var(--ink); color:var(--paper);
+    border:none; font-size:1.6rem; line-height:1;
+    box-shadow:0 6px 18px var(--shadow);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    max-width:480px;
+  }
+  .fab:active{ transform:scale(0.95); }
+
+  /* sheet / modal */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.35);
+    display:none; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .overlay.show{ display:flex; }
+  .sheet{
+    background:var(--paper); width:100%; max-width:480px;
+    border-radius:18px 18px 0 0; padding:20px 20px calc(24px + env(safe-area-inset-bottom));
+    max-height:85vh; overflow-y:auto;
+    box-shadow:0 -8px 30px var(--shadow);
+  }
+  .sheet h3{
+    font-family:'Newsreader', Georgia, serif; font-weight:500; font-size:1.25rem; margin:0 0 16px;
+  }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:0.8rem; color:var(--ink-soft); margin-bottom:6px; }
+  .field input[type="text"], .field input[type="number"], .field select{
+    width:100%; padding:10px 12px; border-radius:9px;
+    border:1px solid var(--line); background:var(--paper-2); color:var(--ink);
+    font-size:0.95rem; font-family:'Work Sans';
+  }
+  .row2{ display:flex; gap:10px; }
+  .row2 > *{ flex:1; min-width:0; }
+  .seg{
+    display:flex; border:1px solid var(--line); border-radius:9px; overflow:hidden;
+  }
+  .seg button{
+    flex:1; padding:10px; border:none; background:var(--paper-2); color:var(--ink-soft);
+    font-family:'Work Sans'; font-size:0.88rem; cursor:pointer;
+  }
+  .seg button.active{ background:var(--ink); color:var(--paper); }
+  .date-range-fields{ display:none; }
+  .date-range-fields.show{ display:block; }
+  .date-single-fields.hide{ display:none; }
+
+  .sheet-actions{ display:flex; gap:10px; margin-top:6px; }
+  .btn{
+    flex:1; padding:12px; border-radius:9px; border:1px solid var(--line);
+    background:var(--paper-2); color:var(--ink); font-size:0.92rem; cursor:pointer;
+    font-family:'Work Sans'; font-weight:500;
+  }
+  .btn.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .btn.danger{ background:transparent; color:var(--berry); border-color:var(--berry); }
+  .btn:active{ opacity:0.8; }
+
+  .day-events{ list-style:none; padding:0; margin:0 0 12px; }
+  .day-events li{
+    display:flex; align-items:center; gap:10px; justify-content:space-between;
+    padding:10px 0; border-top:1px solid var(--line);
+  }
+  .day-events li:first-child{ border-top:none; }
+  .day-events .name{ font-size:0.94rem; }
+  .day-events .edit-link{ font-size:0.8rem; color:var(--ink-soft); background:none; border:none; cursor:pointer; text-decoration:underline; padding:0; }
+
+  ::selection{ background:var(--gold-soft); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="title-row">
+      <h1>Almanac</h1>
+      <span class="today-pill" id="todayPill"></span>
+    </div>
+    <div class="subline" id="subline"></div>
+  </header>
+
+  <div class="month-nav">
+    <span class="label" id="monthLabel"></span>
+    <div class="nav-btns">
+      <button id="prevBtn" aria-label="Previous month">‹</button>
+      <button class="today-btn" id="todayBtn">Today</button>
+      <button id="nextBtn" aria-label="Next month">›</button>
+    </div>
+  </div>
+
+  <div class="weekdays" id="weekdays"></div>
+  <div class="grid" id="grid"></div>
+
+  <section class="upcoming">
+    <h2>Upcoming</h2>
+    <div id="upcomingWrap"></div>
+  </section>
+
+</div>
+
+<button class="fab" id="addBtn" aria-label="Add date">+</button>
+
+<!-- Add / edit sheet -->
+<div class="overlay" id="formOverlay">
+  <div class="sheet">
+    <h3 id="formTitle">Add a date</h3>
+    <div class="field">
+      <label>Type</label>
+      <div class="seg" id="typeSeg">
+        <button type="button" data-type="single" class="active">Single date</button>
+        <button type="button" data-type="range">Range</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="nameInput" placeholder="e.g. Sam's birthday">
+    </div>
+
+    <div class="field date-single-fields" id="singleFields">
+      <label>Date</label>
+      <div class="row2">
+        <select id="singleMonth"></select>
+        <select id="singleDay"></select>
+      </div>
+    </div>
+
+    <div class="field date-range-fields" id="rangeFields">
+      <label>Start</label>
+      <div class="row2">
+        <select id="startMonth"></select>
+        <select id="startDay"></select>
+      </div>
+      <label style="margin-top:12px;">End</label>
+      <div class="row2">
+        <select id="endMonth"></select>
+        <select id="endDay"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Remind me this many days before</label>
+      <input type="number" id="reminderInput" min="0" max="90" value="7">
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn" id="cancelBtn" type="button">Cancel</button>
+      <button class="btn danger" id="deleteBtn" type="button" style="display:none;">Delete</button>
+      <button class="btn primary" id="saveBtn" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Day detail sheet -->
+<div class="overlay" id="dayOverlay">
+  <div class="sheet">
+    <h3 id="dayTitle">Day</h3>
+    <ul class="day-events" id="dayEventsList"></ul>
+    <div class="sheet-actions">
+      <button class="btn" id="dayCloseBtn" type="button">Close</button>
+      <button class="btn primary" id="dayAddBtn" type="button">Add for this day</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var WEEKDAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  var STORE_KEY = "almanac:events:v1";
+
+  function daysInMonth(monthIndex){ // 0-based, generic (allow 29 for Feb)
+    var d = [31,29,31,30,31,30,31,31,30,31,30,31];
+    return d[monthIndex];
+  }
+
+  function loadEvents(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(e){ return []; }
+  }
+  function saveEvents(events){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(events)); }
+    catch(e){ /* storage unavailable — app still works this session */ }
+  }
+
+  var state = {
+    events: loadEvents(),
+    viewYear: new Date().getFullYear(),
+    viewMonth: new Date().getMonth(),
+    editingId: null,
+    dayCtx: null
+  };
+
+  function uid(){ return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function todayMD(){
+    var t = new Date();
+    return {y:t.getFullYear(), m:t.getMonth(), d:t.getDate()};
+  }
+  function startOfDay(y,m,d){ return new Date(y,m,d,0,0,0,0); }
+
+  function mdCompare(m1,d1,m2,d2){
+    if(m1!==m2) return m1-m2;
+    return d1-d2;
+  }
+
+  // does (m,d) fall within event's annual range (handles year wrap)?
+  function rangeContains(ev,m,d){
+    var wraps = mdCompare(ev.endMonth,ev.endDay,ev.month,ev.day) < 0;
+    if(!wraps){
+      return mdCompare(m,d,ev.month,ev.day) >= 0 && mdCompare(m,d,ev.endMonth,ev.endDay) <= 0;
+    }else{
+      return mdCompare(m,d,ev.month,ev.day) >= 0 || mdCompare(m,d,ev.endMonth,ev.endDay) <= 0;
+    }
+  }
+
+  // next occurrence date object (single) on/after today
+  function nextSingleDate(ev, today){
+    var y = today.y;
+    var cand = startOfDay(y, ev.month, ev.day);
+    var t0 = startOfDay(today.y,today.m,today.d);
+    if(cand < t0) cand = startOfDay(y+1, ev.month, ev.day);
+    return cand;
+  }
+  function nextRangeStart(ev, today){
+    var t0 = startOfDay(today.y,today.m,today.d);
+    var y = today.y;
+    var start = startOfDay(y, ev.month, ev.day);
+    var wraps = mdCompare(ev.endMonth,ev.endDay,ev.month,ev.day) < 0;
+    var endThisCycle = wraps ? startOfDay(y+1, ev.endMonth, ev.endDay) : startOfDay(y, ev.endMonth, ev.endDay);
+    // if currently inside this cycle's range, "next" start is this one (treated as ongoing)
+    if(t0 >= start && t0 <= endThisCycle) return start;
+    if(start < t0) start = startOfDay(y+1, ev.month, ev.day);
+    return start;
+  }
+  function rangeEndFor(ev, startDate){
+    var wraps = mdCompare(ev.endMonth,ev.endDay,ev.month,ev.day) < 0;
+    var y = startDate.getFullYear();
+    return wraps ? startOfDay(y+1, ev.endMonth, ev.endDay) : startOfDay(y, ev.endMonth, ev.endDay);
+  }
+  function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+
+  function occurrenceInfo(ev, today){
+    var t0 = startOfDay(today.y,today.m,today.d);
+    if(ev.type === 'single'){
+      var when = nextSingleDate(ev, today);
+      var until = daysBetween(t0, when);
+      return { when: when, until: until, active: until===0, reminder: until>=0 && until<=ev.reminderDays };
+    }else{
+      var start = nextRangeStart(ev, today);
+      var end = rangeEndFor(ev, start);
+      var active = t0 >= start && t0 <= end;
+      var until = daysBetween(t0, start);
+      return { when: start, end: end, until: active?0:until, active: active, reminder: !active && until>=0 && until<=ev.reminderDays };
+    }
+  }
+
+  function fmtMD(m,d){ return MONTHS[m].slice(0,3) + ' ' + d; }
+  function fmtWhen(ev){
+    if(ev.type==='single') return fmtMD(ev.month, ev.day);
+    return fmtMD(ev.month, ev.day) + ' – ' + fmtMD(ev.endMonth, ev.endDay);
+  }
+
+  /* ---------- rendering: header ---------- */
+  function renderHeader(){
+    var t = todayMD();
+    document.getElementById('todayPill').textContent = MONTHS[t.m] + ' ' + t.d + ', ' + t.y;
+    var approaching = state.events.map(function(ev){ return occurrenceInfo(ev,t); })
+      .filter(function(info){ return info.reminder || info.active; });
+    var sub = document.getElementById('subline');
+    if(approaching.length===0){ sub.textContent = 'Nothing approaching right now.'; }
+    else { sub.textContent = approaching.length===1 ? '1 date needs your attention.' : approaching.length + ' dates need your attention.'; }
+  }
+
+  /* ---------- rendering: calendar ---------- */
+  function renderWeekdays(){
+    var wrap = document.getElementById('weekdays');
+    wrap.innerHTML = WEEKDAYS.map(function(w){ return '<span>'+w+'</span>'; }).join('');
+  }
+
+  function buildGridDates(year, month){
+    var first = new Date(year, month, 1);
+    var startOffset = (first.getDay() + 6) % 7; // Monday=0
+    var gridStart = new Date(year, month, 1 - startOffset);
+    var cells = [];
+    for(var i=0;i<42;i++){
+      var d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate()+i);
+      cells.push(d);
+    }
+    return cells;
+  }
+
+  function renderGrid(){
+    document.getElementById('monthLabel').textContent = MONTHS[state.viewMonth] + ' ' + state.viewYear;
+    var grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    var today = todayMD();
+    var cells = buildGridDates(state.viewYear, state.viewMonth);
+
+    cells.forEach(function(d, idx){
+      var m = d.getMonth(), day = d.getDate(), y = d.getFullYear();
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      if(m !== state.viewMonth) cell.className += ' out';
+      if(y===today.y && m===today.m && day===today.d) cell.className += ' today';
+
+      var num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = day;
+      cell.appendChild(num);
+
+      var dotsWrap = document.createElement('div');
+      dotsWrap.className = 'dots';
+      state.events.filter(function(ev){ return ev.type==='single'; }).forEach(function(ev){
+        if(ev.month===m && ev.day===day){
+          var info = occurrenceInfo(ev, today);
+          var dot = document.createElement('span');
+          dot.className = 'dot' + (info.reminder||info.active ? ' reminder' : '');
+          dotsWrap.appendChild(dot);
+        }
+      });
+      if(dotsWrap.children.length) cell.appendChild(dotsWrap);
+
+      cell.addEventListener('click', function(){ openDaySheet(y,m,day); });
+      cell.dataset.row = Math.floor(idx/7);
+      cell.dataset.col = idx%7;
+      grid.appendChild(cell);
+    });
+
+    // range bars: group by row, find contiguous runs per event
+    var rows = [];
+    for(var r=0;r<6;r++){
+      var rowDates = cells.slice(r*7,(r+1)*7);
+      rows.push(rowDates);
+    }
+    var rangeEvents = state.events.filter(function(ev){ return ev.type==='range'; });
+    rows.forEach(function(rowDates, rIdx){
+      rangeEvents.forEach(function(ev){
+        var match = rowDates.map(function(d){ return rangeContains(ev, d.getMonth(), d.getDate()); });
+        var col = 0;
+        while(col < 7){
+          if(match[col]){
+            var startCol = col;
+            while(col<7 && match[col]) col++;
+            var endCol = col-1;
+            var startD = rowDates[startCol], endD = rowDates[endCol];
+            var isTrueStart = (startD.getMonth()===ev.month && startD.getDate()===ev.day);
+            var isTrueEnd = (endD.getMonth()===ev.endMonth && endD.getDate()===ev.endDay);
+            var info = occurrenceInfo(ev, today);
+            var bar = document.createElement('div');
+            bar.className = 'range-bar' + (isTrueStart?' cap-start':'') + (isTrueEnd?' cap-end':'') + (info.active?' active':'') + (info.reminder?' reminder':'');
+            bar.style.gridRow = (rIdx+1);
+            bar.style.gridColumn = (startCol+1) + ' / ' + (endCol+2);
+            grid.appendChild(bar);
+          } else { col++; }
+        }
+      });
+    });
+  }
+
+  /* ---------- rendering: upcoming list ---------- */
+  function renderUpcoming(){
+    var wrap = document.getElementById('upcomingWrap');
+    var today = todayMD();
+    if(state.events.length===0){
+      wrap.innerHTML = '<div class="empty">No dates yet — tap + to add a birthday, date, or seasonal range.</div>';
+      return;
+    }
+    var items = state.events.map(function(ev){
+      return { ev: ev, info: occurrenceInfo(ev, today) };
+    });
+    items.sort(function(a,b){ return a.info.until - b.info.until; });
+    items = items.slice(0,10);
+
+    var ul = document.createElement('ul');
+    ul.className = 'item-list';
+    items.forEach(function(it){
+      var ev = it.ev, info = it.info;
+      var li = document.createElement('li');
+      li.className = 'item';
+      var solidState = info.reminder || info.active;
+      var markClass = 'mark' + (ev.type==='range' ? ' range' : '') + (solidState ? ' solid' : '');
+      var whenText;
+      if(info.active && ev.type==='range') whenText = 'Ongoing · ends ' + fmtMD(ev.endMonth, ev.endDay);
+      else if(info.until===0) whenText = 'Today';
+      else if(info.until===1) whenText = 'Tomorrow';
+      else whenText = 'In ' + info.until + ' days · ' + fmtWhen(ev);
+
+      var badge = '';
+      if(info.active) badge = '<span class="item-badge active">' + (ev.type==='range' ? 'Ongoing' : 'Today') + '</span>';
+      else if(info.reminder) badge = '<span class="item-badge">Reminder</span>';
+
+      li.innerHTML =
+        '<span class="' + markClass + '"></span>' +
+        '<span class="item-body"><div class="item-name">' + escapeHtml(ev.name) + '</div>' +
+        '<div class="item-when">' + whenText + '</div></span>' +
+        badge;
+      li.addEventListener('click', function(){ openEditForm(ev.id); });
+      ul.appendChild(li);
+    });
+    wrap.innerHTML = '';
+    wrap.appendChild(ul);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderAll(){
+    renderHeader();
+    renderWeekdays();
+    renderGrid();
+    renderUpcoming();
+  }
+
+  /* ---------- month nav ---------- */
+  document.getElementById('prevBtn').addEventListener('click', function(){
+    state.viewMonth--; if(state.viewMonth<0){ state.viewMonth=11; state.viewYear--; }
+    renderGrid();
+  });
+  document.getElementById('nextBtn').addEventListener('click', function(){
+    state.viewMonth++; if(state.viewMonth>11){ state.viewMonth=0; state.viewYear++; }
+    renderGrid();
+  });
+  document.getElementById('todayBtn').addEventListener('click', function(){
+    var t = new Date();
+    state.viewYear = t.getFullYear(); state.viewMonth = t.getMonth();
+    renderGrid();
+  });
+
+  /* ---------- form sheet ---------- */
+  var formOverlay = document.getElementById('formOverlay');
+  var typeSeg = document.getElementById('typeSeg');
+  var currentType = 'single';
+
+  function populateMonthSelect(sel){
+    sel.innerHTML = MONTHS.map(function(mn,i){ return '<option value="'+i+'">'+mn+'</option>'; }).join('');
+  }
+  function populateDaySelect(sel, monthIndex){
+    var n = daysInMonth(monthIndex);
+    var cur = parseInt(sel.value,10);
+    sel.innerHTML = '';
+    for(var i=1;i<=n;i++){
+      var opt = document.createElement('option');
+      opt.value = i; opt.textContent = i;
+      sel.appendChild(opt);
+    }
+    if(cur && cur<=n) sel.value = cur;
+  }
+
+  ['singleMonth','startMonth','endMonth'].forEach(function(id){ populateMonthSelect(document.getElementById(id)); });
+  populateDaySelect(document.getElementById('singleDay'), 0);
+  populateDaySelect(document.getElementById('startDay'), 0);
+  populateDaySelect(document.getElementById('endDay'), 0);
+
+  document.getElementById('singleMonth').addEventListener('change', function(){
+    populateDaySelect(document.getElementById('singleDay'), parseInt(this.value,10));
+  });
+  document.getElementById('startMonth').addEventListener('change', function(){
+    populateDaySelect(document.getElementById('startDay'), parseInt(this.value,10));
+  });
+  document.getElementById('endMonth').addEventListener('change', function(){
+    populateDaySelect(document.getElementById('endDay'), parseInt(this.value,10));
+  });
+
+  function setType(t){
+    currentType = t;
+    Array.prototype.forEach.call(typeSeg.children, function(b){
+      b.classList.toggle('active', b.dataset.type===t);
+    });
+    document.getElementById('singleFields').classList.toggle('show', t==='single');
+    document.getElementById('singleFields').style.display = t==='single' ? '' : 'none';
+    document.getElementById('rangeFields').classList.toggle('show', t==='range');
+  }
+  typeSeg.addEventListener('click', function(e){
+    var btn = e.target.closest('button'); if(!btn) return;
+    setType(btn.dataset.type);
+  });
+
+  function openAddForm(prefill){
+    state.editingId = null;
+    document.getElementById('formTitle').textContent = 'Add a date';
+    document.getElementById('deleteBtn').style.display = 'none';
+    document.getElementById('nameInput').value = '';
+    document.getElementById('reminderInput').value = 7;
+    setType('single');
+    var pm = prefill ? prefill.m : state.viewMonth;
+    var pd = prefill ? prefill.d : 1;
+    document.getElementById('singleMonth').value = pm;
+    populateDaySelect(document.getElementById('singleDay'), pm);
+    document.getElementById('singleDay').value = pd;
+    document.getElementById('startMonth').value = pm;
+    populateDaySelect(document.getElementById('startDay'), pm);
+    document.getElementById('startDay').value = pd;
+    document.getElementById('endMonth').value = pm;
+    populateDaySelect(document.getElementById('endDay'), pm);
+    document.getElementById('endDay').value = Math.min(pd+7, daysInMonth(pm));
+    formOverlay.classList.add('show');
+  }
+
+  function openEditForm(id){
+    var ev = state.events.find(function(e){ return e.id===id; });
+    if(!ev) return;
+    state.editingId = id;
+    document.getElementById('formTitle').textContent = 'Edit date';
+    document.getElementById('deleteBtn').style.display = '';
+    document.getElementById('nameInput').value = ev.name;
+    document.getElementById('reminderInput').value = ev.reminderDays;
+    setType(ev.type);
+    if(ev.type==='single'){
+      document.getElementById('singleMonth').value = ev.month;
+      populateDaySelect(document.getElementById('singleDay'), ev.month);
+      document.getElementById('singleDay').value = ev.day;
+    }else{
+      document.getElementById('startMonth').value = ev.month;
+      populateDaySelect(document.getElementById('startDay'), ev.month);
+      document.getElementById('startDay').value = ev.day;
+      document.getElementById('endMonth').value = ev.endMonth;
+      populateDaySelect(document.getElementById('endDay'), ev.endMonth);
+      document.getElementById('endDay').value = ev.endDay;
+    }
+    closeDaySheet();
+    formOverlay.classList.add('show');
+  }
+
+  function closeForm(){ formOverlay.classList.remove('show'); }
+
+  document.getElementById('cancelBtn').addEventListener('click', closeForm);
+  formOverlay.addEventListener('click', function(e){ if(e.target===formOverlay) closeForm(); });
+
+  document.getElementById('saveBtn').addEventListener('click', function(){
+    var name = document.getElementById('nameInput').value.trim();
+    if(!name){ document.getElementById('nameInput').focus(); return; }
+    var reminderDays = Math.max(0, parseInt(document.getElementById('reminderInput').value,10) || 0);
+    var ev;
+    if(currentType==='single'){
+      ev = {
+        id: state.editingId || uid(),
+        type: 'single', name: name,
+        month: parseInt(document.getElementById('singleMonth').value,10),
+        day: parseInt(document.getElementById('singleDay').value,10),
+        reminderDays: reminderDays
+      };
+    }else{
+      ev = {
+        id: state.editingId || uid(),
+        type: 'range', name: name,
+        month: parseInt(document.getElementById('startMonth').value,10),
+        day: parseInt(document.getElementById('startDay').value,10),
+        endMonth: parseInt(document.getElementById('endMonth').value,10),
+        endDay: parseInt(document.getElementById('endDay').value,10),
+        reminderDays: reminderDays
+      };
+    }
+    if(state.editingId){
+      var idx = state.events.findIndex(function(e){ return e.id===state.editingId; });
+      if(idx>-1) state.events[idx] = ev;
+    }else{
+      state.events.push(ev);
+    }
+    saveEvents(state.events);
+    closeForm();
+    renderAll();
+  });
+
+  document.getElementById('deleteBtn').addEventListener('click', function(){
+    if(!state.editingId) return;
+    state.events = state.events.filter(function(e){ return e.id!==state.editingId; });
+    saveEvents(state.events);
+    closeForm();
+    renderAll();
+  });
+
+  document.getElementById('addBtn').addEventListener('click', function(){ openAddForm(null); });
+
+  /* ---------- day detail sheet ---------- */
+  var dayOverlay = document.getElementById('dayOverlay');
+  function openDaySheet(y,m,d){
+    state.dayCtx = {y:y,m:m,d:d};
+    document.getElementById('dayTitle').textContent = MONTHS[m] + ' ' + d + ', ' + y;
+    var list = document.getElementById('dayEventsList');
+    var matches = state.events.filter(function(ev){
+      if(ev.type==='single') return ev.month===m && ev.day===d;
+      return rangeContains(ev,m,d);
+    });
+    if(matches.length===0){
+      list.innerHTML = '<li style="border-top:none;"><span style="color:var(--ink-soft); font-size:0.9rem;">Nothing on this day yet.</span></li>';
+    }else{
+      list.innerHTML = matches.map(function(ev){
+        return '<li><span class="name">'+escapeHtml(ev.name)+' <span style="color:var(--ink-soft); font-size:0.82rem;">('+fmtWhen(ev)+')</span></span>' +
+          '<button class="edit-link" data-id="'+ev.id+'">Edit</button></li>';
+      }).join('');
+      Array.prototype.forEach.call(list.querySelectorAll('.edit-link'), function(btn){
+        btn.addEventListener('click', function(){ openEditForm(btn.dataset.id); });
+      });
+    }
+    dayOverlay.classList.add('show');
+  }
+  function closeDaySheet(){ dayOverlay.classList.remove('show'); }
+  document.getElementById('dayCloseBtn').addEventListener('click', closeDaySheet);
+  document.getElementById('dayAddBtn').addEventListener('click', function(){
+    var ctx = state.dayCtx;
+    closeDaySheet();
+    openAddForm(ctx ? {m:ctx.m, d:ctx.d} : null);
+  });
+  dayOverlay.addEventListener('click', function(e){ if(e.target===dayOverlay) closeDaySheet(); });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
