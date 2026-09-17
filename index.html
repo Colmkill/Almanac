@@ -163,9 +163,8 @@
     border-bottom:1.4px solid var(--green);
     margin-bottom:4px;
     --lane: 0;
-    --lane-step: 0.9px;
-   
-   transform: translateY(calc(var(--lane) * var(--lane-step)));
+    --lane-step: 1.9px;
+   transform: translateY(calc(var(--lane) * -1 * var(--lane-step)));
   
   background:var(--range-fill, var(--green-soft));
   border-top-color:var(--range-color, var(--green));
