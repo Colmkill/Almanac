@@ -162,6 +162,10 @@
     border-top:1.4px solid var(--green);
     border-bottom:1.4px solid var(--green);
     margin-bottom:4px;
+    --lane: 0;
+    margin-bottom: calc(4px + (var(--lane) * 12px));
+    transform: translateY(calc(var(--lane) * -12px));
+}
   }
   .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
   .range-bar.cap-end{ border-right:1.4px solid var(--green); border-top-right-radius:5px; border-bottom-right-radius:5px; margin-right:2px; }
@@ -503,6 +507,7 @@
     document.getElementById('monthLabel').textContent = MONTHS[state.viewMonth] + ' ' + state.viewYear;
     var grid = document.getElementById('grid');
     grid.innerHTML = '';
+    grid.style.gridTemplateRows = '';
     var today = todayMD();
     var cells = buildGridDates(state.viewYear, state.viewMonth);
 
@@ -543,35 +548,101 @@
       grid.appendChild(cell);
     });
 
-    // range bars: group by row, find contiguous runs per event
-    var rows = [];
-    for(var r=0;r<6;r++){
-      var rowDates = cells.slice(r*7,(r+1)*7);
-      rows.push(rowDates);
-    }
-    var rangeEvents = state.events.filter(function(ev){ return ev.type==='range'; });
-    rows.forEach(function(rowDates, rIdx){
-      rangeEvents.forEach(function(ev){
-        var match = rowDates.map(function(d){ return rangeContains(ev, d.getMonth(), d.getDate()); });
-        var col = 0;
-        while(col < 7){
-          if(match[col]){
-            var startCol = col;
-            while(col<7 && match[col]) col++;
-            var endCol = col-1;
-            var startD = rowDates[startCol], endD = rowDates[endCol];
-            var isTrueStart = (startD.getMonth()===ev.month && startD.getDate()===ev.day);
-            var isTrueEnd = (endD.getMonth()===ev.endMonth && endD.getDate()===ev.endDay);
-            var info = occurrenceInfo(ev, today);
-            var bar = document.createElement('div');
-            bar.className = 'range-bar' + (isTrueStart?' cap-start':'') + (isTrueEnd?' cap-end':'') + (info.active?' active':'') + (info.reminder?' reminder':'');
-            bar.style.gridRow = (rIdx+1);
-            bar.style.gridColumn = (startCol+1) + ' / ' + (endCol+2);
-            grid.appendChild(bar);
-          } else { col++; }
-        }
-      });
+// Range bars: group by row and assign overlapping bars to separate lanes.
+var rows = [];
+for(var r=0; r<6; r++){
+  rows.push(cells.slice(r * 7, (r + 1) * 7));
+}
+
+var rangeEvents = state.events.filter(function(ev){
+  return ev.type === 'range';
+});
+
+rows.forEach(function(rowDates, rIdx){
+  var bars = [];
+
+  rangeEvents.forEach(function(ev){
+    var match = rowDates.map(function(d){
+      return rangeContains(ev, d.getMonth(), d.getDate());
     });
+
+    var col = 0;
+    while(col < 7){
+      if(!match[col]){
+        col++;
+        continue;
+      }
+
+      var startCol = col;
+      while(col < 7 && match[col]) col++;
+      var endCol = col - 1;
+
+      bars.push({
+        ev: ev,
+        startCol: startCol,
+        endCol: endCol,
+        lane: 0
+      });
+    }
+  });
+
+  // Put overlapping bars into different lanes.
+  bars.forEach(function(bar){
+    while(bars.some(function(other){
+      return other !== bar &&
+        other.lane === bar.lane &&
+        other.startCol <= bar.endCol &&
+        other.endCol >= bar.startCol;
+    })){
+      bar.lane++;
+    }
+  });
+
+  // Make the row tall enough for all of its lanes.
+  var laneCount = bars.reduce(function(max, bar){
+    return Math.max(max, bar.lane + 1);
+  }, 0);
+
+  if(laneCount > 0){
+    grid.style.gridTemplateRows =
+      Array.from({length: 6}, function(_, index){
+        return index === rIdx
+          ? 'minmax(' + (56 + laneCount * 12) + 'px, auto)'
+          : 'minmax(56px, auto)';
+      }).join(' ');
+  }
+
+  bars.forEach(function(barInfo){
+    var ev = barInfo.ev;
+    var startD = rowDates[barInfo.startCol];
+    var endD = rowDates[barInfo.endCol];
+    var info = occurrenceInfo(ev, today);
+
+    var isTrueStart =
+      startD.getMonth() === ev.month &&
+      startD.getDate() === ev.day;
+
+    var isTrueEnd =
+      endD.getMonth() === ev.endMonth &&
+      endD.getDate() === ev.endDay;
+
+    var bar = document.createElement('div');
+
+    bar.className =
+      'range-bar' +
+      (isTrueStart ? ' cap-start' : '') +
+      (isTrueEnd ? ' cap-end' : '') +
+      (info.active ? ' active' : '') +
+      (info.reminder ? ' reminder' : '');
+
+    bar.style.setProperty('--lane', barInfo.lane);
+    bar.style.gridRow = rIdx + 1;
+    bar.style.gridColumn =
+      (barInfo.startCol + 1) + ' / ' + (barInfo.endCol + 2);
+
+    grid.appendChild(bar);
+  });
+});
   }
 
   /* ---------- rendering: upcoming list ---------- */
