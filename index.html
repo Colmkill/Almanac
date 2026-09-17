@@ -531,8 +531,15 @@
       if(dotsWrap.children.length) cell.appendChild(dotsWrap);
 
       cell.addEventListener('click', function(){ openDaySheet(y,m,day); });
-      cell.dataset.row = Math.floor(idx/7);
-      cell.dataset.col = idx%7;
+      var rowIdx = Math.floor(idx/7), colIdx = idx%7;
+      cell.dataset.row = rowIdx;
+      cell.dataset.col = colIdx;
+      // Explicit grid placement: without this, CSS Grid lays out
+      // explicitly-positioned items (the range bars, below) BEFORE
+      // auto-placed ones, so the bars "claim" cells first and shove
+      // every day cell after them into the next free slot.
+      cell.style.gridRow = (rowIdx+1);
+      cell.style.gridColumn = (colIdx+1);
       grid.appendChild(cell);
     });
 
