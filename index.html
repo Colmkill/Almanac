@@ -165,7 +165,54 @@
     --lane: 0;
     margin-bottom: calc(4px + (var(--lane) * 12px));
     transform: translateY(calc(var(--lane) * -12px));
+  
+  background:var(--range-fill, var(--green-soft));
+  border-top-color:var(--range-color, var(--green));
+  border-bottom-color:var(--range-color, var(--green));
 }
+
+.range-bar.cap-start{
+  border-left-color:var(--range-color, var(--green));
+}
+
+.range-bar.cap-end{
+  border-right-color:var(--range-color, var(--green));
+}
+
+.range-bar.active{
+  background:var(--range-color, var(--green));
+}
+
+.range-bar.reminder{
+  box-shadow:inset 0 0 0 2px var(--berry);
+}
+
+/* Distinct range colors */
+.range-bar.range-color-0{
+  --range-color:#3F5D42;
+  --range-fill:#3F5D4266;
+}
+
+.range-bar.range-color-1{
+  --range-color:#A63D40;
+  --range-fill:#A63D4066;
+}
+
+.range-bar.range-color-2{
+  --range-color:#B07F1F;
+  --range-fill:#B07F1F66;
+}
+
+.range-bar.range-color-3{
+  --range-color:#526D9B;
+  --range-fill:#526D9B66;
+}
+
+.range-bar.range-color-4{
+  --range-color:#8064A2;
+  --range-fill:#8064A266;
+}
+
   }
   .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
   .range-bar.cap-end{ border-right:1.4px solid var(--green); border-top-right-radius:5px; border-bottom-right-radius:5px; margin-right:2px; }
@@ -560,8 +607,8 @@ var rangeEvents = state.events.filter(function(ev){
 
 rows.forEach(function(rowDates, rIdx){
   var bars = [];
-
-  rangeEvents.forEach(function(ev){
+  
+rangeEvents.forEach(function(ev, eventIndex){
     var match = rowDates.map(function(d){
       return rangeContains(ev, d.getMonth(), d.getDate());
     });
@@ -577,12 +624,13 @@ rows.forEach(function(rowDates, rIdx){
       while(col < 7 && match[col]) col++;
       var endCol = col - 1;
 
-      bars.push({
-        ev: ev,
-        startCol: startCol,
-        endCol: endCol,
-        lane: 0
-      });
+     bars.push({
+  ev: ev,
+  colorIndex: eventIndex % 5,
+  startCol: startCol,
+  endCol: endCol,
+  lane: 0
+});
     }
   });
 
@@ -629,7 +677,7 @@ rows.forEach(function(rowDates, rIdx){
     var bar = document.createElement('div');
 
     bar.className =
-      'range-bar' +
+  'range-bar range-color-' + barInfo.colorIndex +
       (isTrueStart ? ' cap-start' : '') +
       (isTrueEnd ? ' cap-end' : '') +
       (info.active ? ' active' : '') +
