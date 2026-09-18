@@ -212,7 +212,7 @@
   isolation:isolate;
 
   --lane:0;
-  --lane-step:5px;
+  --lane-step:7px;
   transform:translateY(calc(var(--lane) * -1 * var(--lane-step)));
 
   /* Soft definition without muddy color blending */
@@ -707,7 +707,7 @@ rangeEvents.forEach(function(ev, eventIndex){
     grid.style.gridTemplateRows =
       Array.from({length: 6}, function(_, index){
         return index === rIdx
-          ? 'minmax(' + (56 + laneCount * 12) + 'px, auto)'
+          ? 'minmax(' + (56 + laneCount * 14) + 'px, auto)'
           : 'minmax(56px, auto)';
       }).join(' ');
   }
