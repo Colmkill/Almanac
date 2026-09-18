@@ -207,13 +207,13 @@
   border-top:1.4px solid var(--range-color, var(--green));
   border-bottom:1.4px solid var(--range-color, var(--green));
 
-  margin-bottom:4px;
+  margin-bottom:0px;
   position:relative;
   isolation:isolate;
 
   --lane:0;
   --lane-step:7px;
-  transform:translateY(calc(var(--lane) * -1 * var(--lane-step)));
+  transform:translateY(calc(var(--lane) * -0.5 * var(--lane-step)));
 
   /* Soft definition without muddy color blending */
   box-shadow:
@@ -258,15 +258,16 @@
   --range-fill: #526D9B66;    /* Faded Slate Blue (40% Opacity) */
 }
 
-/* Color Yellow: Bright Canary Yellow */
+
+.range-bar.range-color-4 {
+  --range-color: #7A5C8E;     /* Muted plum */
+  --range-fill: #7A5C8E66;
+}
+  /* Color Yellow: Bright Canary Yellow */
 /* Mood: Vibrant, energetic, and clean. Pops intensely against paper backgrounds. */
 .range-bar.range-color-yellow {
   --range-color: #FFD000;     /* Solid Canary Yellow */
   --range-fill: #FFD00066;    /* Faded Canary Yellow (40% Opacity) */
-}
-.range-bar.range-color-4 {
-  --range-color: #7A5C8E;     /* Muted plum */
-  --range-fill: #7A5C8E66;
 }
   }
   .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
