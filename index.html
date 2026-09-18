@@ -310,35 +310,7 @@
   }
   .item-badge.active{ background:var(--green); }
   
-var existingEvent = state.editingId
-  ? state.events.find(function(item){ return item.id === state.editingId; })
-  : null;
 
-var colorIndex = existingEvent && existingEvent.colorIndex != null
-  ? existingEvent.colorIndex
-  : state.events.filter(function(item){
-      return item.type === 'range';
-    }).length % 5;
-  ev = {
-  id: state.editingId || uid(),
-  type: 'single',
-  name: name,
-  month: parseInt(document.getElementById('singleMonth').value, 10),
-  day: parseInt(document.getElementById('singleDay').value, 10),
-  reminderDays: reminderDays,
-  colorIndex: colorIndex
-};
-  ev = {
-  id: state.editingId || uid(),
-  type: 'range',
-  name: name,
-  month: parseInt(document.getElementById('startMonth').value, 10),
-  day: parseInt(document.getElementById('startDay').value, 10),
-  endMonth: parseInt(document.getElementById('endMonth').value, 10),
-  endDay: parseInt(document.getElementById('endDay').value, 10),
-  reminderDays: reminderDays,
-  colorIndex: colorIndex
-};
   /* fab */
   .fab{
     position:fixed; right:20px; bottom:26px;
@@ -1030,6 +1002,48 @@ rangeEvents.forEach(function(ev, eventIndex){
 
   renderAll();
 })();
+  document.getElementById('saveBtn').addEventListener('click', function(){
+  var name = document.getElementById('nameInput').value.trim();
+  if(!name){ document.getElementById('nameInput').focus(); return; }
+
+  var reminderDays = Math.max(0, parseInt(document.getElementById('reminderInput').value,10) || 0);
+
+  var existingEvent = state.editingId
+    ? state.events.find(function(item){ return item.id === state.editingId; })
+    : null;
+
+  var colorIndex = existingEvent && existingEvent.colorIndex != null
+    ? existingEvent.colorIndex
+    : state.events.filter(function(item){ return item.type === 'range'; }).length % 5;
+
+  var ev;
+
+  if(currentType === 'single'){
+    ev = {
+      id: state.editingId || uid(),
+      type: 'single',
+      name: name,
+      month: parseInt(document.getElementById('singleMonth').value,10),
+      day: parseInt(document.getElementById('singleDay').value,10),
+      reminderDays: reminderDays,
+      colorIndex: colorIndex
+    };
+  } else {
+    ev = {
+      id: state.editingId || uid(),
+      type: 'range',
+      name: name,
+      month: parseInt(document.getElementById('startMonth').value,10),
+      day: parseInt(document.getElementById('startDay').value,10),
+      endMonth: parseInt(document.getElementById('endMonth').value,10),
+      endDay: parseInt(document.getElementById('endDay').value,10),
+      reminderDays: reminderDays,
+      colorIndex: colorIndex
+    };
+  }
+
+  // save/update...
+});
 </script>
 </body>
 </html>
