@@ -264,11 +264,16 @@
   --range-color: #FFD000;     /* Solid Canary Yellow */
   --range-fill: #FFD00066;    /* Faded Canary Yellow (40% Opacity) */
 }
-
+.range-bar.range-color-4 {
+  --range-color: #7A5C8E;     /* Muted plum */
+  --range-fill: #7A5C8E66;
+}
   }
   .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
   .range-bar.cap-end{ border-right:1.4px solid var(--green); border-top-right-radius:5px; border-bottom-right-radius:5px; margin-right:2px; }
-  .range-bar.active{ background:var(--green); }
+  .range-bar.active {
+  background-color: var(--range-fill);
+}
   .range-bar.reminder{ box-shadow: inset 0 0 0 2px var(--berry); }
 
   /* upcoming */
