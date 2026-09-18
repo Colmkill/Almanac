@@ -683,7 +683,7 @@ rangeEvents.forEach(function(ev, eventIndex){
 
      bars.push({
   ev: ev,
-  colorIndex: eventIndex % 5,
+  colorIndex: ev.colorIndex == null ? eventIndex % 5 : ev.colorIndex,
   startCol: startCol,
   endCol: endCol,
   lane: 0
