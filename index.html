@@ -122,12 +122,13 @@
   --cell-bottom-line:rgba(236,229,211,0.28);
 }
 
-.cell{
-  border-right:1px solid var(--line);
-  border-bottom:2px solid var(--cell-bottom-line);
+.grid{
+  border-top:1px solid var(--line);
+  border-left:1px solid var(--line);
+  /* no border-right or border-bottom here */
 }
 
-.grid{
+.cell{
   border-right:1px solid var(--line);
   border-bottom:2px solid var(--cell-bottom-line);
 }
