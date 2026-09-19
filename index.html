@@ -899,6 +899,13 @@ function updateNamePlaceholder(type) {
   var input = document.getElementById('nameInput');
   input.placeholder = namePlaceholders[type] || namePlaceholders.single;
 }
+
+typeSeg.addEventListener('click', function(e){
+  var button = e.target.closest('button');
+  if(!button) return;
+
+  setType(button.dataset.type);
+});
   /////////////////////////////////////////////////////////////
   function openAddForm(prefill){
     state.editingId = null;
