@@ -227,12 +227,17 @@
   /* Remove isolation to allow overlapping */
   /* isolation: isolate; */
 
-  /* Add these for overlapping effect */
-  margin-bottom: -3px; /* Negative margin creates overlap */
-  z-index: 1;
-  border-left: 1px solid rgba(255,255,255,0.1);
-  border-right: 1px solid rgba(0,0,0,0.1);
-  /* Keep your existing styles */
+  /* Horizontal overlap: negative margin on left/right */
+  margin-left: -2px;   /* Overlap left neighbor */
+  margin-right: -2px;  /* Overlap right neighbor */
+
+  /* Vertical positioning (existing) */
+  position: relative;
+  --lane: 0;
+  --lane-step: 14px;
+  transform: translateY(calc(var(--lane) * -1 * var(--lane-step)));
+
+  /* Border & gradient (existing) */
   background-image:
     linear-gradient(
       to bottom,
@@ -240,19 +245,36 @@
       rgba(255,255,255,0.06) 45%,
       rgba(0,0,0,0.10)
     );
-
   border-top: 1.4px solid var(--range-color, var(--green));
   border-bottom: 1.4px solid var(--range-color, var(--green));
 
-  position: relative;
-  --lane: 0;
-  --lane-step: 14px;
-  transform: translateY(calc(var(--lane) * -1 * var(--lane-step)));
-
+  /* Shadow (existing) */
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.22),
     inset 0 -1px 0 rgba(0,0,0,0.10),
     0 1px 2px rgba(43,42,40,0.12);
+
+  /* Ensure bars can overlap */
+  z-index: 1;
+  opacity: 0.85; /* Slightly transparent for blending */
+}
+
+/* Make higher lanes more vivid */
+.range-bar {
+  opacity: calc(0.7 + (var(--lane) * 0.1));
+  filter: brightness(calc(1 + (var(--lane) * 0.1)));
+}
+
+/* Remove rounded corners if overlapping (optional) */
+.range-bar.cap-start {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: 0; /* Reset for start cap */
+}
+.range-bar.cap-end {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-right: 0; /* Reset for end cap */
 }
 
 /* Add this to make higher lanes appear more vivid */
@@ -774,7 +796,10 @@ function renderGrid() {
       // Apply lane positioning (modified for overlap)
       bar.style.setProperty('--lane', barInfo.lane);
       bar.style.gridRow = rIdx + 1;
-      bar.style.gridColumn = (barInfo.startCol + 1) + ' / ' + (barInfo.endCol + 2);
+      // Extend the grid column slightly to allow overlap
+var startCol = Math.max(0, barInfo.startCol - 0.1); // Start 0.1 columns earlier
+var endCol = barInfo.endCol + 0.1; // End 0.1 columns later
+bar.style.gridColumn = (startCol + 1) + ' / ' + (endCol + 2);
 
       // Add z-index to control stacking (higher lanes appear on top)
       bar.style.zIndex = barInfo.lane + 1;
