@@ -26,27 +26,19 @@
   }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    /* Backgrounds: Warm, high-end light paper hues */
-    --paper: #FAF6EE;          /* Crisp vintage cream paper background */
-    --paper-2: #F3ECE0;        /* Slightly darker layered paper or card fill */
-    --paper-3: #EAE0D0;        /* Deepest paper shade for borders or accents */
-    
-    /* Text/Typography: Rich dark ink for high contrast */
-    --ink: #2B261F;            /* Deep charcoal espresso ink for main text */
-    --ink-soft: #6E6557;       /* Soft charcoal-brown for secondary text */
-    --ink-faint: #A39989;      /* Faint grey-brown for placeholder text */
-    
-    /* Functional UI Accent Colors (Brightened for a light background) */
-    --green: #3F5D4222;          /* Sage / Forest Green */
-    --green-soft: #3F5D4255;   /* Faded Sage Green (~33% opacity) */
-    --gold: #B07F1F;           /* Ochre Gold */
-    --gold-soft: #B07F1F55;    /* Faded Ochre Gold (~33% opacity) */
-    --berry: #A63D40;          /* Terracotta Red */
-    
-    /* Utility Styles */
-    --line: rgba(43, 38, 31, 0.12); /* Subtle, elegant dark separator lines */
-    --shadow: rgba(43, 38, 31, 0.08); /* Soft, natural paper shadow */
-    
+    --paper: #FAF6EE;
+    --paper-2: #F3ECE0;
+    --paper-3: #EAE0D0;
+    --ink: #2B261F;
+    --ink-soft: #6E6557;
+    --ink-faint: #A39989;
+    --green: #3F5D4222;
+    --green-soft: #3F5D4255;
+    --gold: #B07F1F;
+    --gold-soft: #B07F1F55;
+    --berry: #A63D40;
+    --line: rgba(43, 38, 31, 0.12);
+    --shadow: rgba(43, 38, 31, 0.08);
     color-scheme: light;
   }
 }
@@ -86,7 +78,6 @@
     min-height:100vh;
   }
 
-  /* header */
   header{ margin-bottom:18px; }
   .title-row{
     display:flex; align-items:baseline; justify-content:space-between; gap:12px;
@@ -193,8 +184,6 @@
   .range-bar{
   align-self:end;
   height:10px;
-
-  /* Use the event's own color instead of blending with nearby bars */
   background-color: var(--range-fill, var(--green-soft));
   background-image:
     linear-gradient(
@@ -215,61 +204,40 @@
   --lane-step:7px;
   transform:translateY(calc(var(--lane) * -0.5 * var(--lane-step)));
 
-  /* Soft definition without muddy color blending */
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.22),
     inset 0 -1px 0 rgba(0,0,0,0.10),
     0 1px 2px rgba(43,42,40,0.12);
 }
 
-
-
-
 .range-bar.reminder{
   box-shadow:inset 0 0 0 2px var(--berry);
 }
-   
 
-/* Distinct range colors */
-/* Mood: Earthy, organic, and calm. Blends beautifully into deep olives. */
 .range-bar.range-color-0 {
-  --range-color: #3F5D4222;     /* Solid Sage Green */
-  --range-fill: #3F5D4222;    /* Faded Sage Green (40% Opacity) */
+  --range-color: #3F5D4222;
+  --range-fill: #3F5D4222;
 }
-
-/* Color 1: Terracotta / Crimson Red */
-/* Mood: Warm, urgent, and punchy. Overlaps with blue to create rich purples. */
 .range-bar.range-color-1 {
-  --range-color: #A63D40;     /* Solid Terracotta Red */
-  --range-fill: #A63D4066;    /* Faded Terracotta Red (40% Opacity) */
+  --range-color: #A63D40;
+  --range-fill: #A63D4066;
 }
-
-/* Color 2: Amber / Ochre Gold */
-/* Mood: Autumnal, vintage, and high-contrast. Turns to deep bronze when layered. */
 .range-bar.range-color-2 {
-  --range-color: #B07F1F;     /* Solid Ochre Gold */
-  --range-fill: #B07F1F66;    /* Faded Ochre Gold (40% Opacity) */
+  --range-color: #B07F1F;
+  --range-fill: #B07F1F66;
 }
-
-/* Color 3: Steel / Slate Blue */
-/* Mood: Professional, cool, and subdued. Keeps the palette grounded. */
 .range-bar.range-color-3 {
-  --range-color: #526D9B;     /* Solid Slate Blue */
-  --range-fill: #526D9B66;    /* Faded Slate Blue (40% Opacity) */
+  --range-color: #526D9B;
+  --range-fill: #526D9B66;
 }
-
-
 .range-bar.range-color-4 {
-  --range-color: #7A5C8E;     /* Muted plum */
+  --range-color: #7A5C8E;
   --range-fill: #7A5C8E66;
 }
-  /* Color Yellow: Bright Canary Yellow */
-/* Mood: Vibrant, energetic, and clean. Pops intensely against paper backgrounds. */
 .range-bar.range-color-yellow {
-  --range-color: #FFD000;     /* Solid Canary Yellow */
-  --range-fill: #FFD00066;    /* Faded Canary Yellow (40% Opacity) */
+  --range-color: #FFD000;
+  --range-fill: #FFD00066;
 }
-  }
   .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
   .range-bar.cap-end{ border-right:1.4px solid var(--green); border-top-right-radius:5px; border-bottom-right-radius:5px; margin-right:2px; }
   .range-bar.active {
@@ -277,7 +245,6 @@
 }
   .range-bar.reminder{ box-shadow: inset 0 0 0 2px var(--berry); }
 
-  /* upcoming */
   .upcoming{ margin-top:30px; }
   .upcoming h2{
     font-family:'Newsreader', Georgia, serif; font-weight:500; font-size:1.15rem;
@@ -312,7 +279,6 @@
   .item-badge.active{ background:var(--green); }
   
 
-  /* fab */
   .fab{
     position:fixed; right:20px; bottom:26px;
     width:54px; height:54px; border-radius:50%;
@@ -324,7 +290,6 @@
   }
   .fab:active{ transform:scale(0.95); }
 
-  /* sheet / modal */
   .overlay{
     position:fixed; inset:0; background:rgba(0,0,0,0.35);
     display:none; align-items:flex-end; justify-content:center; z-index:50;
@@ -414,7 +379,6 @@
 
 <button class="fab" id="addBtn" aria-label="Add date">+</button>
 
-<!-- Add / edit sheet -->
 <div class="overlay" id="formOverlay">
   <div class="sheet">
     <h3 id="formTitle">Add a date</h3>
@@ -464,7 +428,6 @@
   </div>
 </div>
 
-<!-- Day detail sheet -->
 <div class="overlay" id="dayOverlay">
   <div class="sheet">
     <h3 id="dayTitle">Day</h3>
@@ -484,7 +447,7 @@
   var WEEKDAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   var STORE_KEY = "almanac:events:v1";
 
-  function daysInMonth(monthIndex){ // 0-based, generic (allow 29 for Feb)
+  function daysInMonth(monthIndex){
     var d = [31,29,31,30,31,30,31,31,30,31,30,31];
     return d[monthIndex];
   }
@@ -499,7 +462,7 @@
   }
   function saveEvents(events){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(events)); }
-    catch(e){ /* storage unavailable — app still works this session */ }
+    catch(e){ }
   }
 
   var state = {
@@ -523,7 +486,6 @@
     return d1-d2;
   }
 
-  // does (m,d) fall within event's annual range (handles year wrap)?
   function rangeContains(ev,m,d){
     var wraps = mdCompare(ev.endMonth,ev.endDay,ev.month,ev.day) < 0;
     if(!wraps){
@@ -533,7 +495,6 @@
     }
   }
 
-  // next occurrence date object (single) on/after today
   function nextSingleDate(ev, today){
     var y = today.y;
     var cand = startOfDay(y, ev.month, ev.day);
@@ -547,7 +508,6 @@
     var start = startOfDay(y, ev.month, ev.day);
     var wraps = mdCompare(ev.endMonth,ev.endDay,ev.month,ev.day) < 0;
     var endThisCycle = wraps ? startOfDay(y+1, ev.endMonth, ev.endDay) : startOfDay(y, ev.endMonth, ev.endDay);
-    // if currently inside this cycle's range, "next" start is this one (treated as ongoing)
     if(t0 >= start && t0 <= endThisCycle) return start;
     if(start < t0) start = startOfDay(y+1, ev.month, ev.day);
     return start;
@@ -580,7 +540,6 @@
     return fmtMD(ev.month, ev.day) + ' – ' + fmtMD(ev.endMonth, ev.endDay);
   }
 
-  /* ---------- rendering: header ---------- */
   function renderHeader(){
     var t = todayMD();
     document.getElementById('todayPill').textContent = MONTHS[t.m] + ' ' + t.d + ', ' + t.y;
@@ -591,7 +550,6 @@
     else { sub.textContent = approaching.length===1 ? '1 date needs your attention.' : approaching.length + ' dates need your attention.'; }
   }
 
-  /* ---------- rendering: calendar ---------- */
   function renderWeekdays(){
     var wrap = document.getElementById('weekdays');
     wrap.innerHTML = WEEKDAYS.map(function(w){ return '<span>'+w+'</span>'; }).join('');
@@ -599,7 +557,7 @@
 
   function buildGridDates(year, month){
     var first = new Date(year, month, 1);
-    var startOffset = (first.getDay() + 6) % 7; // Monday=0
+    var startOffset = (first.getDay() + 6) % 7;
     var gridStart = new Date(year, month, 1 - startOffset);
     var cells = [];
     for(var i=0;i<42;i++){
@@ -645,16 +603,11 @@
       var rowIdx = Math.floor(idx/7), colIdx = idx%7;
       cell.dataset.row = rowIdx;
       cell.dataset.col = colIdx;
-      // Explicit grid placement: without this, CSS Grid lays out
-      // explicitly-positioned items (the range bars, below) BEFORE
-      // auto-placed ones, so the bars "claim" cells first and shove
-      // every day cell after them into the next free slot.
       cell.style.gridRow = (rowIdx+1);
       cell.style.gridColumn = (colIdx+1);
       grid.appendChild(cell);
     });
 
-// Range bars: group by row and assign overlapping bars to separate lanes.
 var rows = [];
 for(var r=0; r<6; r++){
   rows.push(cells.slice(r * 7, (r + 1) * 7));
@@ -693,7 +646,6 @@ rangeEvents.forEach(function(ev, eventIndex){
     }
   });
 
-  // Put overlapping bars into different lanes.
   bars.forEach(function(bar){
     while(bars.some(function(other){
       return other !== bar &&
@@ -705,16 +657,15 @@ rangeEvents.forEach(function(ev, eventIndex){
     }
   });
 
-  // Make the row tall enough for all of its lanes.
   var laneCount = bars.reduce(function(max, bar){
     return Math.max(max, bar.lane + 1);
   }, 0);
 
-  if(laneCount > 0){
+  if(laneCount > 1){
     grid.style.gridTemplateRows =
       Array.from({length: 6}, function(_, index){
         return index === rIdx
-          ? 'minmax(' + (56 + laneCount * 14) + 'px, auto)'
+          ? 'minmax(' + (56 + (laneCount - 1) * 14) + 'px, auto)'
           : 'minmax(56px, auto)';
       }).join(' ');
   }
@@ -752,7 +703,6 @@ rangeEvents.forEach(function(ev, eventIndex){
 });
   }
 
-  /* ---------- rendering: upcoming list ---------- */
   function renderUpcoming(){
     var wrap = document.getElementById('upcomingWrap');
     var today = todayMD();
@@ -809,7 +759,6 @@ rangeEvents.forEach(function(ev, eventIndex){
     renderUpcoming();
   }
 
-  /* ---------- month nav ---------- */
   document.getElementById('prevBtn').addEventListener('click', function(){
     state.viewMonth--; if(state.viewMonth<0){ state.viewMonth=11; state.viewYear--; }
     renderGrid();
@@ -824,7 +773,6 @@ rangeEvents.forEach(function(ev, eventIndex){
     renderGrid();
   });
 
-  /* ---------- form sheet ---------- */
   var formOverlay = document.getElementById('formOverlay');
   var typeSeg = document.getElementById('typeSeg');
   var currentType = 'single';
@@ -969,7 +917,6 @@ rangeEvents.forEach(function(ev, eventIndex){
 
   document.getElementById('addBtn').addEventListener('click', function(){ openAddForm(null); });
 
-  /* ---------- day detail sheet ---------- */
   var dayOverlay = document.getElementById('dayOverlay');
   function openDaySheet(y,m,d){
     state.dayCtx = {y:y,m:m,d:d};
@@ -1003,48 +950,6 @@ rangeEvents.forEach(function(ev, eventIndex){
 
   renderAll();
 })();
-  document.getElementById('saveBtn').addEventListener('click', function(){
-  var name = document.getElementById('nameInput').value.trim();
-  if(!name){ document.getElementById('nameInput').focus(); return; }
-
-  var reminderDays = Math.max(0, parseInt(document.getElementById('reminderInput').value,10) || 0);
-
-  var existingEvent = state.editingId
-    ? state.events.find(function(item){ return item.id === state.editingId; })
-    : null;
-
-  var colorIndex = existingEvent && existingEvent.colorIndex != null
-    ? existingEvent.colorIndex
-    : state.events.filter(function(item){ return item.type === 'range'; }).length % 5;
-
-  var ev;
-
-  if(currentType === 'single'){
-    ev = {
-      id: state.editingId || uid(),
-      type: 'single',
-      name: name,
-      month: parseInt(document.getElementById('singleMonth').value,10),
-      day: parseInt(document.getElementById('singleDay').value,10),
-      reminderDays: reminderDays,
-      colorIndex: colorIndex
-    };
-  } else {
-    ev = {
-      id: state.editingId || uid(),
-      type: 'range',
-      name: name,
-      month: parseInt(document.getElementById('startMonth').value,10),
-      day: parseInt(document.getElementById('startDay').value,10),
-      endMonth: parseInt(document.getElementById('endMonth').value,10),
-      endDay: parseInt(document.getElementById('endDay').value,10),
-      reminderDays: reminderDays,
-      colorIndex: colorIndex
-    };
-  }
-
-  // save/update...
-});
 </script>
 </body>
 </html>
