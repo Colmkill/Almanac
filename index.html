@@ -220,24 +220,17 @@
   .dot.once.reminder{ background:var(--ink); border-color:var(--ink); }
 
 .range-bar {
+  /* Layout */
   align-self: end;
   height: 10px;
-  background-color: var(--range-fill, var(--green-soft));
-
-  /* Remove isolation to allow overlapping */
-  /* isolation: isolate; */
-
-  /* Horizontal overlap: negative margin on left/right */
-  margin-left: -2px;   /* Overlap left neighbor */
-  margin-right: -2px;  /* Overlap right neighbor */
-
-  /* Vertical positioning (existing) */
   position: relative;
-  --lane: 0;
-  --lane-step: 14px;
-  transform: translateY(calc(var(--lane) * -1 * var(--lane-step)));
 
-  /* Border & gradient (existing) */
+  /* Overlap settings */
+  margin-left: -4px;   /* Overlap left neighbor by 4px */
+  margin-right: -4px;  /* Overlap right neighbor by 4px */
+
+  /* Background & borders */
+  background-color: var(--range-fill, var(--green-soft));
   background-image:
     linear-gradient(
       to bottom,
@@ -248,15 +241,38 @@
   border-top: 1.4px solid var(--range-color, var(--green));
   border-bottom: 1.4px solid var(--range-color, var(--green));
 
-  /* Shadow (existing) */
+  /* Remove isolation to allow blending */
+  /* isolation: isolate; */
+
+  /* Positioning for lanes */
+  --lane: 0;
+  --lane-step: 14px;
+  transform: translateY(calc(var(--lane) * -1 * var(--lane-step)));
+
+  /* Shadows & effects */
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.22),
     inset 0 -1px 0 rgba(0,0,0,0.10),
     0 1px 2px rgba(43,42,40,0.12);
 
-  /* Ensure bars can overlap */
+  /* Blending */
   z-index: 1;
-  opacity: 0.85; /* Slightly transparent for blending */
+  opacity: 0.85; /* Allows color blending on overlap */
+}
+
+/* Adjust caps to avoid double-borders */
+.range-bar.cap-start {
+  border-left: 1.4px solid var(--range-color, var(--green));
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  margin-left: 0; /* Reset overlap for start cap */
+}
+
+.range-bar.cap-end {
+  border-right: 1.4px solid var(--range-color, var(--green));
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  margin-right: 0; /* Reset overlap for end cap */
 }
 
 /* Make higher lanes more vivid */
@@ -796,10 +812,13 @@ function renderGrid() {
       // Apply lane positioning (modified for overlap)
       bar.style.setProperty('--lane', barInfo.lane);
       bar.style.gridRow = rIdx + 1;
-      // Extend the grid column slightly to allow overlap
-var startCol = Math.max(0, barInfo.startCol - 0.1); // Start 0.1 columns earlier
-var endCol = barInfo.endCol + 0.1; // End 0.1 columns later
-bar.style.gridColumn = (startCol + 1) + ' / ' + (endCol + 2);
+      // Extend the bar slightly into adjacent columns to force overlap
+var startCol = barInfo.startCol;
+var endCol = barInfo.endCol;
+var extend = 0.3; // Extend into adjacent columns by 0.3 (30% of a column)
+
+bar.style.gridColumn =
+  (startCol + 1 - extend) + ' / ' + (endCol + 2 + extend);
 
       // Add z-index to control stacking (higher lanes appear on top)
       bar.style.zIndex = barInfo.lane + 1;
