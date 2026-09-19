@@ -147,7 +147,7 @@
 .cell{
   display:grid;
   grid-template-columns:auto auto;
-  align-items:center;
+  align-items:start;
   justify-content:flex-start;
   column-gap:3px;
   row-gap:0;
@@ -163,23 +163,32 @@
   border-bottom:2px solid rgba(43,42,40,0.22);
 }
 
+
+
+
 .cell .num{
-  grid-column: 1;
-  grid-row: 1;
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-  line-height: 1;
+  grid-column:1;
+  grid-row:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:20px;
+  min-height:20px;
+  font-size:0.8rem;
+  color:var(--ink-soft);
+  line-height:1;
 }
 
 .cell .dots{
-  grid-column: 2;
-  grid-row: 1;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  flex-wrap: nowrap;
-  margin-top: 0;
+  grid-column:2;
+  grid-row:1;
+  display:flex;
+  align-items:center;
+  gap:3px;
+  flex-wrap:wrap;
+  margin-top:5px;
 }
+
 
 .cell:active{ background:var(--paper-2); }
 .cell.out .num{ color:var(--ink-faint); opacity:0.5; }
