@@ -114,81 +114,45 @@
     text-align:center; color:var(--ink-faint); font-size:0.75rem;
     padding:4px 0; margin-bottom:2px;
   }
-:root{
-  --cell-bottom-line:rgba(43,42,40,0.28);
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    grid-auto-rows:minmax(56px,auto);
+    position:relative;
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+  }
+  .cell{
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: flex-start;
+  column-gap: 3px;
+  row-gap: 0;
+  padding: 3px 3px 3px;
+  position: relative;
+  cursor: pointer;
+  min-width: 0;
 }
-
-:root[data-theme="dark"]{
-  --cell-bottom-line:rgba(236,229,211,0.28);
-}
-
-.grid{
-  border-top:1px solid var(--line);
-  border-left:1px solid var(--line);
-  /* no border-right or border-bottom here */
-}
-
-.cell{
-  border-right:1px solid var(--line);
-  border-bottom:2px solid var(--cell-bottom-line);
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  grid-auto-rows:minmax(56px,auto);
-  position:relative;
-
-  border-top:1px solid var(--line);
-  border-left:1px solid var(--line);
-  border-right:1px solid var(--line);
-  border-bottom:2px solid rgba(43,42,40,0.22);
-}
-  
-.cell{
-  display:grid;
-  grid-template-columns:auto auto;
-  align-items:start;
-  justify-content:flex-start;
-  column-gap:3px;
-  row-gap:0;
-  padding:3px;
-  position:relative;
-  cursor:pointer;
-  min-width:0;
-
-  /* Cell outline */
-  border-right:1px solid var(--line);
-
-  /* Emphasised lower line */
-  border-bottom:2px solid rgba(43,42,40,0.22);
-}
-
-
-
 
 .cell .num{
-  grid-column:1;
-  grid-row:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-width:20px;
-  min-height:20px;
-  font-size:0.8rem;
-  color:var(--ink-soft);
-  line-height:1;
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1;
 }
 
 .cell .dots{
-  grid-column:2;
-  grid-row:1;
-  display:flex;
-  align-items:center;
-  gap:3px;
-  flex-wrap:wrap;
-  margin-top:5px;
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+  margin-top: 0;
 }
-
 
 .cell:active{ background:var(--paper-2); }
 .cell.out .num{ color:var(--ink-faint); opacity:0.5; }
@@ -239,7 +203,9 @@
   isolation:isolate;
 
   --lane:0;
-  --lane-step:14px;
+  --lane-count:1;
+  --stack-space:40px;
+  --lane-step: min(14px, calc((var(--stack-space) - 10px) / max(1, (var(--lane-count) - 1))));
   transform:translateY(calc(var(--lane) * -1 * var(--lane-step)));
 
   box-shadow:
@@ -427,19 +393,15 @@
     <div class="field">
       <label>Type</label>
       <div class="seg" id="typeSeg">
-        <button type="button" data-type="single" class="active">Single yearly</button>
+        <button type="button" data-type="single" class="active">Single date</button>
         <button type="button" data-type="range">Range</button>
-        <button type="button" data-type="once">Once Only</button>
+        <button type="button" data-type="once">Once</button>
       </div>
     </div>
     <div class="field">
-  <label>Name</label>
-  <input type="text" id="nameInput" placeholder="">
-</div>
-   <!--<div class="field">
       <label>Name</label>
       <input type="text" id="nameInput" placeholder="e.g. Dad's birthday">
-    </div>-->
+    </div>
 
     <div class="field date-single-fields" id="singleFields">
       <label>Date</label>
@@ -681,11 +643,6 @@ var rangeEvents = state.events.filter(function(ev){
   return ev.type === 'range';
 });
 
-// Height needed for each of the 6 rows, filled in as we go and
-// applied once at the end — so one row's height never gets wiped
-// out by another row being processed afterward.
-var rowHeights = [56,56,56,56,56,56];
-
 rows.forEach(function(rowDates, rIdx){
   var bars = [];
   
@@ -730,10 +687,6 @@ rangeEvents.forEach(function(ev, eventIndex){
     return Math.max(max, bar.lane + 1);
   }, 0);
 
-  if(laneCount > 1){
-    rowHeights[rIdx] = 56 + (laneCount - 1) * 14;
-  }
-
   bars.forEach(function(barInfo){
     var ev = barInfo.ev;
     var startD = rowDates[barInfo.startCol];
@@ -758,6 +711,7 @@ rangeEvents.forEach(function(ev, eventIndex){
       (info.reminder ? ' reminder' : '');
 
     bar.style.setProperty('--lane', barInfo.lane);
+    bar.style.setProperty('--lane-count', laneCount);
     bar.style.gridRow = rIdx + 1;
     bar.style.gridColumn =
       (barInfo.startCol + 1) + ' / ' + (barInfo.endCol + 2);
@@ -765,10 +719,6 @@ rangeEvents.forEach(function(ev, eventIndex){
     grid.appendChild(bar);
   });
 });
-
-grid.style.gridTemplateRows = rowHeights.map(function(h){
-  return 'minmax(' + h + 'px, auto)';
-}).join(' ');
   }
 
   function renderUpcoming(){
@@ -910,40 +860,22 @@ grid.style.gridTemplateRows = rowHeights.map(function(h){
   document.getElementById('endMonth').addEventListener('change', function(){
     populateDaySelect(document.getElementById('endDay'), parseInt(this.value,10));
   });
-/////////////////////////////////////////////////////////////////////////
-function setType(t){
-  currentType = t;
 
-  Array.prototype.forEach.call(typeSeg.children, function(b){
-    b.classList.toggle('active', b.dataset.type === t);
+  function setType(t){
+    currentType = t;
+    Array.prototype.forEach.call(typeSeg.children, function(b){
+      b.classList.toggle('active', b.dataset.type===t);
+    });
+    document.getElementById('singleFields').classList.toggle('show', t==='single');
+    document.getElementById('singleFields').style.display = t==='single' ? '' : 'none';
+    document.getElementById('rangeFields').classList.toggle('show', t==='range');
+    document.getElementById('onceFields').classList.toggle('show', t==='once');
+  }
+  typeSeg.addEventListener('click', function(e){
+    var btn = e.target.closest('button'); if(!btn) return;
+    setType(btn.dataset.type);
   });
 
-  document.getElementById('singleFields').classList.toggle('show', t === 'single');
-  document.getElementById('singleFields').style.display = t === 'single' ? '' : 'none';
-  document.getElementById('rangeFields').classList.toggle('show', t === 'range');
-  document.getElementById('onceFields').classList.toggle('show', t === 'once');
-
-  updateNamePlaceholder(t);
-}
-
-var namePlaceholders = {
-  single: "e.g. Dad's birthday",
-  range: "e.g. School holidays",
-  once: "e.g. Interview"
-};
-
-function updateNamePlaceholder(type) {
-  var input = document.getElementById('nameInput');
-  input.placeholder = namePlaceholders[type] || namePlaceholders.single;
-}
-
-typeSeg.addEventListener('click', function(e){
-  var button = e.target.closest('button');
-  if(!button) return;
-
-  setType(button.dataset.type);
-});
-  /////////////////////////////////////////////////////////////
   function openAddForm(prefill){
     state.editingId = null;
     document.getElementById('formTitle').textContent = 'Add a date';
