@@ -42,8 +42,8 @@
     color-scheme: light;
   }
 }
-  
-  :root[data-theme="dark"]{
+
+:root[data-theme="dark"]{
     --paper:#1D1B17;
     --paper-2:#26231D;
     --paper-3:#302C24;
@@ -125,7 +125,6 @@
 .grid{
   border-top:1px solid var(--line);
   border-left:1px solid var(--line);
-  /* no border-right or border-bottom here */
 }
 
 .cell{
@@ -143,7 +142,7 @@
   border-right:1px solid var(--line);
   border-bottom:2px solid rgba(43,42,40,0.22);
 }
-  
+
 .cell{
   display:grid;
   grid-template-columns:auto auto;
@@ -162,9 +161,6 @@
   /* Emphasised lower line */
   border-bottom:2px solid rgba(43,42,40,0.22);
 }
-
-
-
 
 .cell .num{
   grid-column:1;
@@ -188,7 +184,6 @@
   flex-wrap:wrap;
   margin-top:5px;
 }
-
 
 .cell:active{ background:var(--paper-2); }
 .cell.out .num{ color:var(--ink-faint); opacity:0.5; }
@@ -218,14 +213,15 @@
   }
   .dot.once{ border-radius:2px; border-color:var(--ink-soft); }
   .dot.once.reminder{ background:var(--ink); border-color:var(--ink); }
-  ///////////////////////////////////////////////////////////
+
+/* Range Bar Styles with Overlap */
 .range-bar {
   /* Layout */
   align-self: end;
   height: 10px;
   position: relative;
-  width: calc(100% + 6px); /* Creates overlap */
-  left: -3px; /* Pulls bar left to overlap with previous */
+  width: calc(100% + 6px); /* Creates 3px overlap on each side */
+  left: -3px; /* Pulls bar left to create overlap */
 
   /* Background & borders */
   background-color: var(--range-fill, var(--green-soft));
@@ -256,7 +252,7 @@
   filter: brightness(calc(1 + (var(--lane) * 0.1)));
 }
 
-/* Reset for caps */
+/* Cap styles - reset for start/end */
 .range-bar.cap-start {
   width: 100%;
   left: 0;
@@ -271,7 +267,7 @@
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
 }
-/////////////////////////////////////////////////////////////////
+
 /* Color variants */
 .range-bar.range-color-0 { --range-color: #3F5D42; --range-fill: #3F5D4266; }
 .range-bar.range-color-1 { --range-color: #A63D40; --range-fill: #A63D4066; }
@@ -282,7 +278,7 @@
 
 .range-bar.reminder { box-shadow: inset 0 0 0 2px var(--berry); }
 .range-bar.active { background-color: var(--range-fill); }
- 
+
   .upcoming{ margin-top:30px; }
   .upcoming h2{
     font-family:'Newsreader', Georgia, serif; font-weight:500; font-size:1.15rem;
@@ -317,7 +313,6 @@
     background:var(--berry); color:var(--paper); white-space:nowrap; flex:none;
   }
   .item-badge.active{ background:var(--green); }
-  
 
   .fab{
     position:fixed; right:20px; bottom:26px;
@@ -433,13 +428,9 @@
       </div>
     </div>
     <div class="field">
-  <label>Name</label>
-  <input type="text" id="nameInput" placeholder="">
-</div>
-   <!--<div class="field">
       <label>Name</label>
       <input type="text" id="nameInput" placeholder="e.g. Dad's birthday">
-    </div>-->
+    </div>
 
     <div class="field date-single-fields" id="singleFields">
       <label>Date</label>
@@ -627,145 +618,139 @@
     }
     return cells;
   }
-function renderGrid() {
-  document.getElementById('monthLabel').textContent = MONTHS[state.viewMonth] + ' ' + state.viewYear;
-  var grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  grid.style.gridTemplateRows = '';
-  var today = todayMD();
-  var cells = buildGridDates(state.viewYear, state.viewMonth);
 
-  // --- Render Cells ---
-  cells.forEach(function(d, idx) {
-    var m = d.getMonth(), day = d.getDate(), y = d.getFullYear();
-    var cell = document.createElement('div');
-    cell.className = 'cell';
-    if (m !== state.viewMonth) cell.className += ' out';
-    if (y === today.y && m === today.m && day === today.d) cell.className += ' today';
+  function renderGrid() {
+    document.getElementById('monthLabel').textContent = MONTHS[state.viewMonth] + ' ' + state.viewYear;
+    var grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    grid.style.gridTemplateRows = '';
+    var today = todayMD();
+    var cells = buildGridDates(state.viewYear, state.viewMonth);
 
-    var num = document.createElement('div');
-    num.className = 'num';
-    num.textContent = day;
-    cell.appendChild(num);
+    // --- Render Cells ---
+    cells.forEach(function(d, idx) {
+      var m = d.getMonth(), day = d.getDate(), y = d.getFullYear();
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      if (m !== state.viewMonth) cell.className += ' out';
+      if (y === today.y && m === today.m && day === today.d) cell.className += ' today';
 
-    var dotsWrap = document.createElement('div');
-    dotsWrap.className = 'dots';
-    state.events.filter(function(ev) { return ev.type === 'single' || ev.type === 'once'; }).forEach(function(ev) {
-      var matches = ev.type === 'once'
-        ? (ev.year === y && ev.month === m && ev.day === day)
-        : (ev.month === m && ev.day === day);
-      if (matches) {
-        var info = occurrenceInfo(ev, today);
-        var dot = document.createElement('span');
-        dot.className = 'dot' + (ev.type === 'once' ? ' once' : '') + (info.reminder || info.active ? ' reminder' : '');
-        dotsWrap.appendChild(dot);
-      }
-    });
-    if (dotsWrap.children.length) cell.appendChild(dotsWrap);
+      var num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = day;
+      cell.appendChild(num);
 
-    cell.addEventListener('click', function() { openDaySheet(y, m, day); });
-    var rowIdx = Math.floor(idx / 7), colIdx = idx % 7;
-    cell.dataset.row = rowIdx;
-    cell.dataset.col = colIdx;
-    cell.style.gridRow = (rowIdx + 1);
-    cell.style.gridColumn = (colIdx + 1);
-    grid.appendChild(cell);
-  });
-
-  // --- Range Bars Logic ---
-  var rows = [];
-  for (var r = 0; r < 6; r++) {
-    rows.push(cells.slice(r * 7, (r + 1) * 7));
-  }
-
-  var rangeEvents = state.events.filter(function(ev) { return ev.type === 'range'; });
-  var rowHeights = [56, 56, 56, 56, 56, 56];
-
-  rows.forEach(function(rowDates, rIdx) {
-    var bars = [];
-
-    rangeEvents.forEach(function(ev, eventIndex) {
-      var match = rowDates.map(function(d) {
-        return rangeContains(ev, d.getMonth(), d.getDate());
-      });
-
-      var col = 0;
-      while (col < 7) {
-        if (!match[col]) {
-          col++;
-          continue;
+      var dotsWrap = document.createElement('div');
+      dotsWrap.className = 'dots';
+      state.events.filter(function(ev) { return ev.type === 'single' || ev.type === 'once'; }).forEach(function(ev) {
+        var matches = ev.type === 'once'
+          ? (ev.year === y && ev.month === m && ev.day === day)
+          : (ev.month === m && ev.day === day);
+        if (matches) {
+          var info = occurrenceInfo(ev, today);
+          var dot = document.createElement('span');
+          dot.className = 'dot' + (ev.type === 'once' ? ' once' : '') + (info.reminder || info.active ? ' reminder' : '');
+          dotsWrap.appendChild(dot);
         }
-        var startCol = col;
-        while (col < 7 && match[col]) col++;
-        var endCol = col - 1;
+      });
+      if (dotsWrap.children.length) cell.appendChild(dotsWrap);
 
-        bars.push({
-          ev: ev,
-          colorIndex: ev.colorIndex == null ? eventIndex % 5 : ev.colorIndex,
-          startCol: startCol,
-          endCol: endCol,
-          lane: 0
-        });
-      }
+      cell.addEventListener('click', function() { openDaySheet(y, m, day); });
+      var rowIdx = Math.floor(idx / 7), colIdx = idx % 7;
+      cell.dataset.row = rowIdx;
+      cell.dataset.col = colIdx;
+      cell.style.gridRow = (rowIdx + 1);
+      cell.style.gridColumn = (colIdx + 1);
+      grid.appendChild(cell);
     });
 
-    // Assign lanes (allow overlap)
-    bars.forEach(function(bar) {
-      var maxOverlap = 2;
-      while (bars.filter(function(other) {
-        return other !== bar &&
-          other.lane === bar.lane &&
-          other.startCol <= bar.endCol &&
-          other.endCol >= bar.startCol;
-      }).length >= maxOverlap) {
-        bar.lane++;
-      }
-    });
-
-    var laneCount = bars.reduce(function(max, bar) { return Math.max(max, bar.lane + 1); }, 0);
-    if (laneCount > 1) {
-      rowHeights[rIdx] = 56 + (laneCount - 1) * 14;
+    // --- Range Bars Logic ---
+    var rows = [];
+    for (var r = 0; r < 6; r++) {
+      rows.push(cells.slice(r * 7, (r + 1) * 7));
     }
 
-    // Render bars with overlap
-    bars.forEach(function(barInfo) {
-      var ev = barInfo.ev;
-      var startD = rowDates[barInfo.startCol];
-      var endD = rowDates[barInfo.endCol];
-      var info = occurrenceInfo(ev, today);
+    var rangeEvents = state.events.filter(function(ev) { return ev.type === 'range'; });
+    var rowHeights = [56, 56, 56, 56, 56, 56];
 
-      var isTrueStart = startD.getMonth() === ev.month && startD.getDate() === ev.day;
-      var isTrueEnd = endD.getMonth() === ev.endMonth && endD.getDate() === ev.endDay;
+    rows.forEach(function(rowDates, rIdx) {
+      var bars = [];
 
-      var bar = document.createElement('div');
-      bar.className =
-        'range-bar range-color-' + barInfo.colorIndex +
-        (isTrueStart ? ' cap-start' : '') +
-        (isTrueEnd ? ' cap-end' : '') +
-        (info.active ? ' active' : '') +
-        (info.reminder ? ' reminder' : '');
+      rangeEvents.forEach(function(ev, eventIndex) {
+        var match = rowDates.map(function(d) {
+          return rangeContains(ev, d.getMonth(), d.getDate());
+        });
 
-      bar.style.setProperty('--lane', barInfo.lane);
-      bar.style.gridRow = rIdx + 1;
+        var col = 0;
+        while (col < 7) {
+          if (!match[col]) {
+            col++;
+            continue;
+          }
+          var startCol = col;
+          while (col < 7 && match[col]) col++;
+          var endCol = col - 1;
 
-      // Extend into adjacent columns for overlap
-      var extend = 0.2;
-      bar.style.gridColumn = (barInfo.startCol + 1 - extend) + ' / ' + (barInfo.endCol + 2 + extend);
+          bars.push({
+            ev: ev,
+            colorIndex: ev.colorIndex == null ? eventIndex % 5 : ev.colorIndex,
+            startCol: startCol,
+            endCol: endCol,
+            lane: 0
+          });
+        }
+      });
 
-      // Reset margins for caps
-      if (isTrueStart) bar.style.marginLeft = '0';
-      if (isTrueEnd) bar.style.marginRight = '0';
+      // Assign lanes (allow overlap)
+      bars.forEach(function(bar) {
+        var maxOverlap = 2;
+        while (bars.filter(function(other) {
+          return other !== bar &&
+            other.lane === bar.lane &&
+            other.startCol <= bar.endCol &&
+            other.endCol >= bar.startCol;
+        }).length >= maxOverlap) {
+          bar.lane++;
+        }
+      });
 
-      grid.appendChild(bar);
+      var laneCount = bars.reduce(function(max, bar) { return Math.max(max, bar.lane + 1); }, 0);
+      if (laneCount > 1) {
+        rowHeights[rIdx] = 56 + (laneCount - 1) * 14;
+      }
+
+      // Render bars
+      bars.forEach(function(barInfo) {
+        var ev = barInfo.ev;
+        var startD = rowDates[barInfo.startCol];
+        var endD = rowDates[barInfo.endCol];
+        var info = occurrenceInfo(ev, today);
+
+        var isTrueStart = startD.getMonth() === ev.month && startD.getDate() === ev.day;
+        var isTrueEnd = endD.getMonth() === ev.endMonth && endD.getDate() === ev.endDay;
+
+        var bar = document.createElement('div');
+        bar.className =
+          'range-bar range-color-' + barInfo.colorIndex +
+          (isTrueStart ? ' cap-start' : '') +
+          (isTrueEnd ? ' cap-end' : '') +
+          (info.active ? ' active' : '') +
+          (info.reminder ? ' reminder' : '');
+
+        bar.style.setProperty('--lane', barInfo.lane);
+        bar.style.gridRow = rIdx + 1;
+        bar.style.gridColumn = (barInfo.startCol + 1) + ' / ' + (barInfo.endCol + 2);
+
+        grid.appendChild(bar);
+      });
     });
-  });
 
-  // Apply row heights
-  grid.style.gridTemplateRows = rowHeights.map(function(h) {
-    return 'minmax(' + h + 'px, auto)';
-  }).join(' ');
-}
-  //////////////////////////////////////////////////
+    // Apply row heights
+    grid.style.gridTemplateRows = rowHeights.map(function(h) {
+      return 'minmax(' + h + 'px, auto)';
+    }).join(' ');
+  }
+
   function renderUpcoming(){
     var wrap = document.getElementById('upcomingWrap');
     var today = todayMD();
@@ -905,40 +890,35 @@ function renderGrid() {
   document.getElementById('endMonth').addEventListener('change', function(){
     populateDaySelect(document.getElementById('endDay'), parseInt(this.value,10));
   });
-/////////////////////////////////////////////////////////////////////////
-function setType(t){
-  currentType = t;
 
-  Array.prototype.forEach.call(typeSeg.children, function(b){
-    b.classList.toggle('active', b.dataset.type === t);
+  function setType(t){
+    currentType = t;
+    Array.prototype.forEach.call(typeSeg.children, function(b){
+      b.classList.toggle('active', b.dataset.type === t);
+    });
+    document.getElementById('singleFields').style.display = t === 'single' ? '' : 'none';
+    document.getElementById('rangeFields').style.display = t === 'range' ? '' : 'none';
+    document.getElementById('onceFields').style.display = t === 'once' ? '' : 'none';
+    updateNamePlaceholder(t);
+  }
+
+  var namePlaceholders = {
+    single: "e.g. Dad's birthday",
+    range: "e.g. School holidays",
+    once: "e.g. Interview"
+  };
+
+  function updateNamePlaceholder(type) {
+    var input = document.getElementById('nameInput');
+    input.placeholder = namePlaceholders[type] || namePlaceholders.single;
+  }
+
+  typeSeg.addEventListener('click', function(e){
+    var button = e.target.closest('button');
+    if(!button) return;
+    setType(button.dataset.type);
   });
 
-  document.getElementById('singleFields').classList.toggle('show', t === 'single');
-  document.getElementById('singleFields').style.display = t === 'single' ? '' : 'none';
-  document.getElementById('rangeFields').classList.toggle('show', t === 'range');
-  document.getElementById('onceFields').classList.toggle('show', t === 'once');
-
-  updateNamePlaceholder(t);
-}
-
-var namePlaceholders = {
-  single: "e.g. Dad's birthday",
-  range: "e.g. School holidays",
-  once: "e.g. Interview"
-};
-
-function updateNamePlaceholder(type) {
-  var input = document.getElementById('nameInput');
-  input.placeholder = namePlaceholders[type] || namePlaceholders.single;
-}
-
-typeSeg.addEventListener('click', function(e){
-  var button = e.target.closest('button');
-  if(!button) return;
-
-  setType(button.dataset.type);
-});
-  /////////////////////////////////////////////////////////////
   function openAddForm(prefill){
     state.editingId = null;
     document.getElementById('formTitle').textContent = 'Add a date';
