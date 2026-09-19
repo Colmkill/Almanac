@@ -792,45 +792,38 @@ function renderGrid() {
     }
 
     // --- Render Bars with Overlap & Shading ---
-    bars.forEach(function(barInfo) {
-      var ev = barInfo.ev;
-      var startD = rowDates[barInfo.startCol];
-      var endD = rowDates[barInfo.endCol];
-      var info = occurrenceInfo(ev, today);
+  // Inside renderGrid(), after bars are collected:
+bars.forEach(function(barInfo) {
+  var ev = barInfo.ev;
+  var startD = rowDates[barInfo.startCol];
+  var endD = rowDates[barInfo.endCol];
+  var info = occurrenceInfo(ev, today);
 
-      var isTrueStart = startD.getMonth() === ev.month && startD.getDate() === ev.day;
-      var isTrueEnd = endD.getMonth() === ev.endMonth && endD.getDate() === ev.endDay;
+  var isTrueStart = startD.getMonth() === ev.month && startD.getDate() === ev.day;
+  var isTrueEnd = endD.getMonth() === ev.endMonth && endD.getDate() === ev.endDay;
 
-      var bar = document.createElement('div');
-      bar.className =
-        'range-bar range-color-' + barInfo.colorIndex +
-        (isTrueStart ? ' cap-start' : '') +
-        (isTrueEnd ? ' cap-end' : '') +
-        (info.active ? ' active' : '') +
-        (info.reminder ? ' reminder' : '');
+  var bar = document.createElement('div');
+  bar.className =
+    'range-bar range-color-' + barInfo.colorIndex +
+    (isTrueStart ? ' cap-start' : '') +
+    (isTrueEnd ? ' cap-end' : '') +
+    (info.active ? ' active' : '') +
+    (info.reminder ? ' reminder' : '');
 
-      // Apply lane positioning (modified for overlap)
-      bar.style.setProperty('--lane', barInfo.lane);
-      bar.style.gridRow = rIdx + 1;
-      // Extend the bar slightly into adjacent columns to force overlap
-var startCol = barInfo.startCol;
-var endCol = barInfo.endCol;
-var extend = 0.3; // Extend into adjacent columns by 0.3 (30% of a column)
+  // Apply lane and overlap
+  bar.style.setProperty('--lane', barInfo.lane);
+  bar.style.gridRow = rIdx + 1;
 
-bar.style.gridColumn =
-  (startCol + 1 - extend) + ' / ' + (endCol + 2 + extend);
+  // Extend into adjacent columns for overlap
+  var extend = 0.3;
+  bar.style.gridColumn = (barInfo.startCol + 1 - extend) + ' / ' + (barInfo.endCol + 2 + extend);
 
-      // Add z-index to control stacking (higher lanes appear on top)
-      bar.style.zIndex = barInfo.lane + 1;
+  // Ensure caps don't overlap
+  if (isTrueStart) bar.style.marginLeft = '0';
+  if (isTrueEnd) bar.style.marginRight = '0';
 
-      grid.appendChild(bar);
-    });
-  });
-
-  grid.style.gridTemplateRows = rowHeights.map(function(h) {
-    return 'minmax(' + h + 'px, auto)';
-  }).join(' ');
-}
+  grid.appendChild(bar);
+});
 
   function renderUpcoming(){
     var wrap = document.getElementById('upcomingWrap');
