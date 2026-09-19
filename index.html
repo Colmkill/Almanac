@@ -699,6 +699,7 @@ function renderGrid() {
   var today = todayMD();
   var cells = buildGridDates(state.viewYear, state.viewMonth);
 
+  // --- Render Cells ---
   cells.forEach(function(d, idx) {
     var m = d.getMonth(), day = d.getDate(), y = d.getFullYear();
     var cell = document.createElement('div');
@@ -735,14 +736,14 @@ function renderGrid() {
     grid.appendChild(cell);
   });
 
-  // --- Range Bars Logic (Modified for Overlap & Shading) ---
+  // --- Range Bars Logic ---
   var rows = [];
   for (var r = 0; r < 6; r++) {
     rows.push(cells.slice(r * 7, (r + 1) * 7));
   }
 
   var rangeEvents = state.events.filter(function(ev) { return ev.type === 'range'; });
-  var rowHeights = [56, 56, 56, 56, 56, 56]; // Default row heights
+  var rowHeights = [56, 56, 56, 56, 56, 56];
 
   rows.forEach(function(rowDates, rIdx) {
     var bars = [];
@@ -772,9 +773,8 @@ function renderGrid() {
       }
     });
 
-    // --- Modified Lane Assignment (Allows Overlap) ---
+    // Assign lanes (allow overlap)
     bars.forEach(function(bar) {
-      // Allow up to 2 bars to overlap in the same lane
       var maxOverlap = 2;
       while (bars.filter(function(other) {
         return other !== bar &&
@@ -788,42 +788,47 @@ function renderGrid() {
 
     var laneCount = bars.reduce(function(max, bar) { return Math.max(max, bar.lane + 1); }, 0);
     if (laneCount > 1) {
-      rowHeights[rIdx] = 56 + (laneCount - 1) * 14; // Adjust height for lanes
+      rowHeights[rIdx] = 56 + (laneCount - 1) * 14;
     }
 
-    // --- Render Bars with Overlap & Shading ---
-  // Inside renderGrid(), after bars are collected:
-bars.forEach(function(barInfo) {
-  var ev = barInfo.ev;
-  var startD = rowDates[barInfo.startCol];
-  var endD = rowDates[barInfo.endCol];
-  var info = occurrenceInfo(ev, today);
+    // Render bars with overlap
+    bars.forEach(function(barInfo) {
+      var ev = barInfo.ev;
+      var startD = rowDates[barInfo.startCol];
+      var endD = rowDates[barInfo.endCol];
+      var info = occurrenceInfo(ev, today);
 
-  var isTrueStart = startD.getMonth() === ev.month && startD.getDate() === ev.day;
-  var isTrueEnd = endD.getMonth() === ev.endMonth && endD.getDate() === ev.endDay;
+      var isTrueStart = startD.getMonth() === ev.month && startD.getDate() === ev.day;
+      var isTrueEnd = endD.getMonth() === ev.endMonth && endD.getDate() === ev.endDay;
 
-  var bar = document.createElement('div');
-  bar.className =
-    'range-bar range-color-' + barInfo.colorIndex +
-    (isTrueStart ? ' cap-start' : '') +
-    (isTrueEnd ? ' cap-end' : '') +
-    (info.active ? ' active' : '') +
-    (info.reminder ? ' reminder' : '');
+      var bar = document.createElement('div');
+      bar.className =
+        'range-bar range-color-' + barInfo.colorIndex +
+        (isTrueStart ? ' cap-start' : '') +
+        (isTrueEnd ? ' cap-end' : '') +
+        (info.active ? ' active' : '') +
+        (info.reminder ? ' reminder' : '');
 
-  // Apply lane and overlap
-  bar.style.setProperty('--lane', barInfo.lane);
-  bar.style.gridRow = rIdx + 1;
+      bar.style.setProperty('--lane', barInfo.lane);
+      bar.style.gridRow = rIdx + 1;
 
-  // Extend into adjacent columns for overlap
-  var extend = 0.3;
-  bar.style.gridColumn = (barInfo.startCol + 1 - extend) + ' / ' + (barInfo.endCol + 2 + extend);
+      // Extend into adjacent columns for overlap
+      var extend = 0.3;
+      bar.style.gridColumn = (barInfo.startCol + 1 - extend) + ' / ' + (barInfo.endCol + 2 + extend);
 
-  // Ensure caps don't overlap
-  if (isTrueStart) bar.style.marginLeft = '0';
-  if (isTrueEnd) bar.style.marginRight = '0';
+      // Reset margins for caps
+      if (isTrueStart) bar.style.marginLeft = '0';
+      if (isTrueEnd) bar.style.marginRight = '0';
 
-  grid.appendChild(bar);
-});
+      grid.appendChild(bar);
+    });
+  });
+
+  // Apply row heights
+  grid.style.gridTemplateRows = rowHeights.map(function(h) {
+    return 'minmax(' + h + 'px, auto)';
+  }).join(' ');
+}
 
   function renderUpcoming(){
     var wrap = document.getElementById('upcomingWrap');
