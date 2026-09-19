@@ -226,8 +226,8 @@
   position: relative;
 
   /* Overlap settings */
-  margin-left: -4px;   /* Overlap left neighbor by 4px */
-  margin-right: -4px;  /* Overlap right neighbor by 4px */
+  margin-left: -4px;
+  margin-right: -4px;
 
   /* Background & borders */
   background-color: var(--range-fill, var(--green-soft));
@@ -240,9 +240,6 @@
     );
   border-top: 1.4px solid var(--range-color, var(--green));
   border-bottom: 1.4px solid var(--range-color, var(--green));
-
-  /* Remove isolation to allow blending */
-  /* isolation: isolate; */
 
   /* Positioning for lanes */
   --lane: 0;
@@ -257,93 +254,34 @@
 
   /* Blending */
   z-index: 1;
-  opacity: 0.85; /* Allows color blending on overlap */
-}
-
-/* Adjust caps to avoid double-borders */
-.range-bar.cap-start {
-  border-left: 1.4px solid var(--range-color, var(--green));
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-  margin-left: 0; /* Reset overlap for start cap */
-}
-
-.range-bar.cap-end {
-  border-right: 1.4px solid var(--range-color, var(--green));
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-  margin-right: 0; /* Reset overlap for end cap */
-}
-
-/* Make higher lanes more vivid */
-.range-bar {
   opacity: calc(0.7 + (var(--lane) * 0.1));
   filter: brightness(calc(1 + (var(--lane) * 0.1)));
 }
 
-/* Remove rounded corners if overlapping (optional) */
+/* Cap styles */
 .range-bar.cap-start {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  margin-left: 0; /* Reset for start cap */
+  border-left: 1.4px solid var(--range-color, var(--green));
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  margin-left: 0;
 }
 .range-bar.cap-end {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  margin-right: 0; /* Reset for end cap */
+  border-right: 1.4px solid var(--range-color, var(--green));
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  margin-right: 0;
 }
 
-/* Add this to make higher lanes appear more vivid */
-.range-bar {
-  opacity: calc(0.7 + (var(--lane) * 0.1)); /* Each lane becomes more opaque */
-  filter: brightness(calc(1 + (var(--lane) * 0.1))); /* Each lane becomes brighter */
-}
+/* Color variants */
+.range-bar.range-color-0 { --range-color: #3F5D42; --range-fill: #3F5D4266; }
+.range-bar.range-color-1 { --range-color: #A63D40; --range-fill: #A63D4066; }
+.range-bar.range-color-2 { --range-color: #B07F1F; --range-fill: #B07F1F66; }
+.range-bar.range-color-3 { --range-color: #526D9B; --range-fill: #526D9B66; }
+.range-bar.range-color-4 { --range-color: #7A5C8E; --range-fill: #7A5C8E66; }
+.range-bar.range-color-yellow { --range-color: #FFD000; --range-fill: #FFD00066; }
 
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    inset 0 -1px 0 rgba(0,0,0,0.10),
-    0 1px 2px rgba(43,42,40,0.12);
-}
-
-.range-bar.reminder{
-  box-shadow:inset 0 0 0 2px var(--berry);
-}
-
-.range-bar.range-color-0 {
-  --range-color: #3F5D42;
-  --range-fill: #3F5D42;
-  opacity: 0.7;
-}
-.range-bar.range-color-1 {
-  --range-color: #A63D40;
-  --range-fill: #A63D40;
-  opacity: 0.7;
-}
-.range-bar.range-color-2 {
-  --range-color: #B07F1F;
-  --range-fill: #B07F1F;
-  opacity: 0.7;
-}
-.range-bar.range-color-3 {
-  --range-color: #526D9B;
-  --range-fill: #526D9B;
-  opacity: 0.7;
-}
-.range-bar.range-color-4 {
-  --range-color: #7A5C8E;
-  --range-fill: #7A5C8E;
-  opacity: 0.7;
-}
-.range-bar.range-color-yellow {
-  --range-color: #FFD000;
-  --range-fill: #FFD000;
-  opacity: 0.7;
-}
-  .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
-  .range-bar.cap-end{ border-right:1.4px solid var(--green); border-top-right-radius:5px; border-bottom-right-radius:5px; margin-right:2px; }
-  .range-bar.active {
-  background-color: var(--range-fill);
-}
+.range-bar.reminder { box-shadow: inset 0 0 0 2px var(--berry); }
+.range-bar.active { background-color: var(--range-fill); }
   .range-bar.reminder{ box-shadow: inset 0 0 0 2px var(--berry); }
 
   .upcoming{ margin-top:30px; }
