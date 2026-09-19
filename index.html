@@ -230,7 +230,8 @@
   /* Add these for overlapping effect */
   margin-bottom: -3px; /* Negative margin creates overlap */
   z-index: 1;
-
+  border-left: 1px solid rgba(255,255,255,0.1);
+  border-right: 1px solid rgba(0,0,0,0.1);
   /* Keep your existing styles */
   background-image:
     linear-gradient(
@@ -271,28 +272,34 @@
 }
 
 .range-bar.range-color-0 {
-  --range-color: #3F5D4222;
-  --range-fill: #3F5D4222;
+  --range-color: #3F5D42;
+  --range-fill: #3F5D42;
+  opacity: 0.7;
 }
 .range-bar.range-color-1 {
   --range-color: #A63D40;
-  --range-fill: #A63D4066;
+  --range-fill: #A63D40;
+  opacity: 0.7;
 }
 .range-bar.range-color-2 {
   --range-color: #B07F1F;
-  --range-fill: #B07F1F66;
+  --range-fill: #B07F1F;
+  opacity: 0.7;
 }
 .range-bar.range-color-3 {
   --range-color: #526D9B;
-  --range-fill: #526D9B66;
+  --range-fill: #526D9B;
+  opacity: 0.7;
 }
 .range-bar.range-color-4 {
   --range-color: #7A5C8E;
-  --range-fill: #7A5C8E66;
+  --range-fill: #7A5C8E;
+  opacity: 0.7;
 }
 .range-bar.range-color-yellow {
   --range-color: #FFD000;
-  --range-fill: #FFD00066;
+  --range-fill: #FFD000;
+  opacity: 0.7;
 }
   .range-bar.cap-start{ border-left:1.4px solid var(--green); border-top-left-radius:5px; border-bottom-left-radius:5px; margin-left:2px; }
   .range-bar.cap-end{ border-right:1.4px solid var(--green); border-top-right-radius:5px; border-bottom-right-radius:5px; margin-right:2px; }
