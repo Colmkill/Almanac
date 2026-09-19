@@ -218,12 +218,16 @@
   }
   .dot.once{ border-radius:2px; border-color:var(--ink-soft); }
   .dot.once.reminder{ background:var(--ink); border-color:var(--ink); }
-
+  ///////////////////////////////////////////////////////////
 .range-bar {
   /* Layout */
   align-self: end;
   height: 10px;
   position: relative;
+
+  /* Overlap settings */
+  margin-left: -3px;   /* Overlap left neighbor by 3px */
+  margin-right: -3px;  /* Overlap right neighbor by 3px */
 
   /* Background & borders */
   background-color: var(--range-fill, var(--green-soft));
@@ -253,18 +257,24 @@
   opacity: 0.85;
 }
 
-/* Cap styles */
+/* Cap styles - reset margins for start/end */
 .range-bar.cap-start {
   border-left: 1.4px solid var(--range-color, var(--green));
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  margin-left: 0;
+  margin-left: 0; /* Reset overlap for start cap */
 }
 .range-bar.cap-end {
   border-right: 1.4px solid var(--range-color, var(--green));
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
-  margin-right: 0;
+  margin-right: 0; /* Reset overlap for end cap */
+}
+
+/* Make higher lanes more vivid */
+.range-bar {
+  opacity: calc(0.7 + (var(--lane) * 0.1));
+  filter: brightness(calc(1 + (var(--lane) * 0.1)));
 }
 
 /* Color variants */
