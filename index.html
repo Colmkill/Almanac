@@ -180,6 +180,8 @@
     content:''; position:absolute; top:-3px; right:-3px;
     width:5px; height:5px; border-radius:50%; background:var(--berry);
   }
+  .dot.once{ border-radius:2px; border-color:var(--ink-soft); }
+  .dot.once.reminder{ background:var(--ink); border-color:var(--ink); }
 
   .range-bar{
   align-self:end;
@@ -201,8 +203,8 @@
   isolation:isolate;
 
   --lane:0;
-  --lane-step:7px;
-  transform:translateY(calc(var(--lane) * -0.5 * var(--lane-step)));
+  --lane-step:14px;
+  transform:translateY(calc(var(--lane) * -1 * var(--lane-step)));
 
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.22),
@@ -269,6 +271,8 @@
   .item .mark.solid{ background:var(--gold); }
   .item .mark.range.solid{ background:var(--green); border-color:var(--green); }
   .item .mark:not(.range){ border-color:var(--gold); }
+  .item .mark.once{ border-radius:2px; border-color:var(--ink-soft); }
+  .item .mark.once.solid{ background:var(--ink); border-color:var(--ink); }
   .item-body{ flex:1; min-width:0; }
   .item-name{ font-size:0.96rem; }
   .item-when{ font-size:0.8rem; color:var(--ink-soft); }
@@ -323,6 +327,8 @@
   .seg button.active{ background:var(--ink); color:var(--paper); }
   .date-range-fields{ display:none; }
   .date-range-fields.show{ display:block; }
+  .date-once-fields{ display:none; }
+  .date-once-fields.show{ display:block; }
   .date-single-fields.hide{ display:none; }
 
   .sheet-actions{ display:flex; gap:10px; margin-top:6px; }
@@ -387,6 +393,7 @@
       <div class="seg" id="typeSeg">
         <button type="button" data-type="single" class="active">Single date</button>
         <button type="button" data-type="range">Range</button>
+        <button type="button" data-type="once">Once</button>
       </div>
     </div>
     <div class="field">
@@ -412,6 +419,15 @@
       <div class="row2">
         <select id="endMonth"></select>
         <select id="endDay"></select>
+      </div>
+    </div>
+
+    <div class="field date-once-fields" id="onceFields">
+      <label>Date</label>
+      <div class="row2">
+        <select id="onceMonth"></select>
+        <select id="onceDay"></select>
+        <select id="onceYear"></select>
       </div>
     </div>
 
@@ -521,7 +537,11 @@
 
   function occurrenceInfo(ev, today){
     var t0 = startOfDay(today.y,today.m,today.d);
-    if(ev.type === 'single'){
+    if(ev.type === 'once'){
+      var when = startOfDay(ev.year, ev.month, ev.day);
+      var until = daysBetween(t0, when);
+      return { when: when, until: until, active: until===0, reminder: until>=0 && until<=ev.reminderDays, past: until<0 };
+    }else if(ev.type === 'single'){
       var when = nextSingleDate(ev, today);
       var until = daysBetween(t0, when);
       return { when: when, until: until, active: until===0, reminder: until>=0 && until<=ev.reminderDays };
@@ -536,6 +556,7 @@
 
   function fmtMD(m,d){ return MONTHS[m].slice(0,3) + ' ' + d; }
   function fmtWhen(ev){
+    if(ev.type==='once') return fmtMD(ev.month, ev.day) + ', ' + ev.year;
     if(ev.type==='single') return fmtMD(ev.month, ev.day);
     return fmtMD(ev.month, ev.day) + ' – ' + fmtMD(ev.endMonth, ev.endDay);
   }
@@ -589,11 +610,14 @@
 
       var dotsWrap = document.createElement('div');
       dotsWrap.className = 'dots';
-      state.events.filter(function(ev){ return ev.type==='single'; }).forEach(function(ev){
-        if(ev.month===m && ev.day===day){
+      state.events.filter(function(ev){ return ev.type==='single' || ev.type==='once'; }).forEach(function(ev){
+        var matches = ev.type==='once'
+          ? (ev.year===y && ev.month===m && ev.day===day)
+          : (ev.month===m && ev.day===day);
+        if(matches){
           var info = occurrenceInfo(ev, today);
           var dot = document.createElement('span');
-          dot.className = 'dot' + (info.reminder||info.active ? ' reminder' : '');
+          dot.className = 'dot' + (ev.type==='once' ? ' once' : '') + (info.reminder||info.active ? ' reminder' : '');
           dotsWrap.appendChild(dot);
         }
       });
@@ -616,6 +640,11 @@ for(var r=0; r<6; r++){
 var rangeEvents = state.events.filter(function(ev){
   return ev.type === 'range';
 });
+
+// Height needed for each of the 6 rows, filled in as we go and
+// applied once at the end — so one row's height never gets wiped
+// out by another row being processed afterward.
+var rowHeights = [56,56,56,56,56,56];
 
 rows.forEach(function(rowDates, rIdx){
   var bars = [];
@@ -662,12 +691,7 @@ rangeEvents.forEach(function(ev, eventIndex){
   }, 0);
 
   if(laneCount > 1){
-    grid.style.gridTemplateRows =
-      Array.from({length: 6}, function(_, index){
-        return index === rIdx
-          ? 'minmax(' + (56 + (laneCount - 1) * 14) + 'px, auto)'
-          : 'minmax(56px, auto)';
-      }).join(' ');
+    rowHeights[rIdx] = 56 + (laneCount - 1) * 14;
   }
 
   bars.forEach(function(barInfo){
@@ -701,18 +725,24 @@ rangeEvents.forEach(function(ev, eventIndex){
     grid.appendChild(bar);
   });
 });
+
+grid.style.gridTemplateRows = rowHeights.map(function(h){
+  return 'minmax(' + h + 'px, auto)';
+}).join(' ');
   }
 
   function renderUpcoming(){
     var wrap = document.getElementById('upcomingWrap');
     var today = todayMD();
     if(state.events.length===0){
-      wrap.innerHTML = '<div class="empty">No dates yet — tap + to add a birthday, date, or seasonal range.</div>';
+      wrap.innerHTML = '<div class="empty">No dates yet — tap + to add a birthday, seasonal range, or one-off diary entry.</div>';
       return;
     }
-    var items = state.events.map(function(ev){
-      return { ev: ev, info: occurrenceInfo(ev, today) };
-    });
+    var items = state.events
+      .filter(function(ev){ return !(ev.type==='once' && occurrenceInfo(ev, today).past); })
+      .map(function(ev){
+        return { ev: ev, info: occurrenceInfo(ev, today) };
+      });
     items.sort(function(a,b){ return a.info.until - b.info.until; });
     items = items.slice(0,10);
 
@@ -723,7 +753,7 @@ rangeEvents.forEach(function(ev, eventIndex){
       var li = document.createElement('li');
       li.className = 'item';
       var solidState = info.reminder || info.active;
-      var markClass = 'mark' + (ev.type==='range' ? ' range' : '') + (solidState ? ' solid' : '');
+      var markClass = 'mark' + (ev.type==='range' ? ' range' : '') + (ev.type==='once' ? ' once' : '') + (solidState ? ' solid' : '');
       var whenText;
       if(info.active && ev.type==='range') whenText = 'Ongoing · ends ' + fmtMD(ev.endMonth, ev.endDay);
       else if(info.until===0) whenText = 'Today';
@@ -792,10 +822,44 @@ rangeEvents.forEach(function(ev, eventIndex){
     if(cur && cur<=n) sel.value = cur;
   }
 
+  function isLeapYear(y){ return (y%4===0 && y%100!==0) || y%400===0; }
+  function daysInMonthForYear(monthIndex, year){
+    if(monthIndex===1) return isLeapYear(year) ? 29 : 28;
+    return daysInMonth(monthIndex);
+  }
+  function populateDaySelectForYear(sel, monthIndex, year){
+    var n = daysInMonthForYear(monthIndex, year);
+    var cur = parseInt(sel.value,10);
+    sel.innerHTML = '';
+    for(var i=1;i<=n;i++){
+      var opt = document.createElement('option');
+      opt.value = i; opt.textContent = i;
+      sel.appendChild(opt);
+    }
+    if(cur && cur<=n) sel.value = cur;
+  }
+  function populateYearSelect(sel, centerYear){
+    var opts = [];
+    for(var y=centerYear-2; y<=centerYear+6; y++) opts.push(y);
+    sel.innerHTML = opts.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
+    sel.value = centerYear;
+  }
+
   ['singleMonth','startMonth','endMonth'].forEach(function(id){ populateMonthSelect(document.getElementById(id)); });
   populateDaySelect(document.getElementById('singleDay'), 0);
   populateDaySelect(document.getElementById('startDay'), 0);
   populateDaySelect(document.getElementById('endDay'), 0);
+
+  populateMonthSelect(document.getElementById('onceMonth'));
+  populateYearSelect(document.getElementById('onceYear'), new Date().getFullYear());
+  populateDaySelectForYear(document.getElementById('onceDay'), 0, new Date().getFullYear());
+
+  document.getElementById('onceMonth').addEventListener('change', function(){
+    populateDaySelectForYear(document.getElementById('onceDay'), parseInt(this.value,10), parseInt(document.getElementById('onceYear').value,10));
+  });
+  document.getElementById('onceYear').addEventListener('change', function(){
+    populateDaySelectForYear(document.getElementById('onceDay'), parseInt(document.getElementById('onceMonth').value,10), parseInt(this.value,10));
+  });
 
   document.getElementById('singleMonth').addEventListener('change', function(){
     populateDaySelect(document.getElementById('singleDay'), parseInt(this.value,10));
@@ -815,6 +879,7 @@ rangeEvents.forEach(function(ev, eventIndex){
     document.getElementById('singleFields').classList.toggle('show', t==='single');
     document.getElementById('singleFields').style.display = t==='single' ? '' : 'none';
     document.getElementById('rangeFields').classList.toggle('show', t==='range');
+    document.getElementById('onceFields').classList.toggle('show', t==='once');
   }
   typeSeg.addEventListener('click', function(e){
     var btn = e.target.closest('button'); if(!btn) return;
@@ -839,6 +904,11 @@ rangeEvents.forEach(function(ev, eventIndex){
     document.getElementById('endMonth').value = pm;
     populateDaySelect(document.getElementById('endDay'), pm);
     document.getElementById('endDay').value = Math.min(pd+7, daysInMonth(pm));
+    var py = prefill && prefill.y ? prefill.y : new Date().getFullYear();
+    document.getElementById('onceMonth').value = pm;
+    populateYearSelect(document.getElementById('onceYear'), py);
+    populateDaySelectForYear(document.getElementById('onceDay'), pm, py);
+    document.getElementById('onceDay').value = pd;
     formOverlay.classList.add('show');
   }
 
@@ -851,7 +921,13 @@ rangeEvents.forEach(function(ev, eventIndex){
     document.getElementById('nameInput').value = ev.name;
     document.getElementById('reminderInput').value = ev.reminderDays;
     setType(ev.type);
-    if(ev.type==='single'){
+    if(ev.type==='once'){
+      populateYearSelect(document.getElementById('onceYear'), ev.year);
+      document.getElementById('onceYear').value = ev.year;
+      document.getElementById('onceMonth').value = ev.month;
+      populateDaySelectForYear(document.getElementById('onceDay'), ev.month, ev.year);
+      document.getElementById('onceDay').value = ev.day;
+    }else if(ev.type==='single'){
       document.getElementById('singleMonth').value = ev.month;
       populateDaySelect(document.getElementById('singleDay'), ev.month);
       document.getElementById('singleDay').value = ev.day;
@@ -877,7 +953,16 @@ rangeEvents.forEach(function(ev, eventIndex){
     if(!name){ document.getElementById('nameInput').focus(); return; }
     var reminderDays = Math.max(0, parseInt(document.getElementById('reminderInput').value,10) || 0);
     var ev;
-    if(currentType==='single'){
+    if(currentType==='once'){
+      ev = {
+        id: state.editingId || uid(),
+        type: 'once', name: name,
+        year: parseInt(document.getElementById('onceYear').value,10),
+        month: parseInt(document.getElementById('onceMonth').value,10),
+        day: parseInt(document.getElementById('onceDay').value,10),
+        reminderDays: reminderDays
+      };
+    }else if(currentType==='single'){
       ev = {
         id: state.editingId || uid(),
         type: 'single', name: name,
@@ -923,6 +1008,7 @@ rangeEvents.forEach(function(ev, eventIndex){
     document.getElementById('dayTitle').textContent = MONTHS[m] + ' ' + d + ', ' + y;
     var list = document.getElementById('dayEventsList');
     var matches = state.events.filter(function(ev){
+      if(ev.type==='once') return ev.year===y && ev.month===m && ev.day===d;
       if(ev.type==='single') return ev.month===m && ev.day===d;
       return rangeContains(ev,m,d);
     });
@@ -944,7 +1030,7 @@ rangeEvents.forEach(function(ev, eventIndex){
   document.getElementById('dayAddBtn').addEventListener('click', function(){
     var ctx = state.dayCtx;
     closeDaySheet();
-    openAddForm(ctx ? {m:ctx.m, d:ctx.d} : null);
+    openAddForm(ctx ? {m:ctx.m, d:ctx.d, y:ctx.y} : null);
   });
   dayOverlay.addEventListener('click', function(e){ if(e.target===dayOverlay) closeDaySheet(); });
 
