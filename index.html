@@ -870,22 +870,32 @@ grid.style.gridTemplateRows = rowHeights.map(function(h){
   document.getElementById('endMonth').addEventListener('change', function(){
     populateDaySelect(document.getElementById('endDay'), parseInt(this.value,10));
   });
+/////////////////////////////////////////////////////////////////////////
+function setType(t){
+  currentType = t;
 
-  function setType(t){
-    currentType = t;
-    Array.prototype.forEach.call(typeSeg.children, function(b){
-      b.classList.toggle('active', b.dataset.type===t);
-    });
-    document.getElementById('singleFields').classList.toggle('show', t==='single');
-    document.getElementById('singleFields').style.display = t==='single' ? '' : 'none';
-    document.getElementById('rangeFields').classList.toggle('show', t==='range');
-    document.getElementById('onceFields').classList.toggle('show', t==='once');
-  }
-  typeSeg.addEventListener('click', function(e){
-    var btn = e.target.closest('button'); if(!btn) return;
-    setType(btn.dataset.type);
+  Array.prototype.forEach.call(typeSeg.children, function(b){
+    b.classList.toggle('active', b.dataset.type === t);
   });
 
+  document.getElementById('singleFields').classList.toggle('show', t === 'single');
+  document.getElementById('singleFields').style.display = t === 'single' ? '' : 'none';
+  document.getElementById('rangeFields').classList.toggle('show', t === 'range');
+  document.getElementById('onceFields').classList.toggle('show', t === 'once');
+
+  updateNamePlaceholder(t);
+}
+var namePlaceholders = {
+  single: "e.g. Dad's birthday",
+  range: "e.g. School holidays",
+  once: "e.g. Interview"
+};
+
+function updateNamePlaceholder(type) {
+  var input = document.getElementById('nameInput');
+  input.placeholder = namePlaceholders[type] || namePlaceholders.single;
+}
+  /////////////////////////////////////////////////////////////
   function openAddForm(prefill){
     state.editingId = null;
     document.getElementById('formTitle').textContent = 'Add a date';
