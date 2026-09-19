@@ -225,10 +225,6 @@
   height: 10px;
   position: relative;
 
-  /* Overlap settings */
-  margin-left: -4px;
-  margin-right: -4px;
-
   /* Background & borders */
   background-color: var(--range-fill, var(--green-soft));
   background-image:
@@ -254,8 +250,7 @@
 
   /* Blending */
   z-index: 1;
-  opacity: calc(0.7 + (var(--lane) * 0.1));
-  filter: brightness(calc(1 + (var(--lane) * 0.1)));
+  opacity: 0.85;
 }
 
 /* Cap styles */
@@ -282,8 +277,7 @@
 
 .range-bar.reminder { box-shadow: inset 0 0 0 2px var(--berry); }
 .range-bar.active { background-color: var(--range-fill); }
-  .range-bar.reminder{ box-shadow: inset 0 0 0 2px var(--berry); }
-
+ 
   .upcoming{ margin-top:30px; }
   .upcoming h2{
     font-family:'Newsreader', Georgia, serif; font-weight:500; font-size:1.15rem;
@@ -749,7 +743,7 @@ function renderGrid() {
 
       bar.style.setProperty('--lane', barInfo.lane);
       bar.style.gridRow = rIdx + 1;
-      bar.style.gridColumn = (barInfo.startCol + 1) + ' / ' + (barInfo.endCol + 2); // Removed extend for now
+      bar.style.gridColumn = (barInfo.startCol + 1) + ' / ' + (barInfo.endCol + 2); // Fixed: +2 to span to the next grid line
 
       // Reset margins for caps
       if (isTrueStart) bar.style.marginLeft = '0';
