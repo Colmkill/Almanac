@@ -219,10 +219,19 @@
   .dot.once{ border-radius:2px; border-color:var(--ink-soft); }
   .dot.once.reminder{ background:var(--ink); border-color:var(--ink); }
 
-  .range-bar{
-  align-self:end;
-  height:10px;
+.range-bar {
+  align-self: end;
+  height: 10px;
   background-color: var(--range-fill, var(--green-soft));
+
+  /* Remove isolation to allow overlapping */
+  /* isolation: isolate; */
+
+  /* Add these for overlapping effect */
+  margin-bottom: -3px; /* Negative margin creates overlap */
+  z-index: 1;
+
+  /* Keep your existing styles */
   background-image:
     linear-gradient(
       to bottom,
@@ -231,16 +240,25 @@
       rgba(0,0,0,0.10)
     );
 
-  border-top:1.4px solid var(--range-color, var(--green));
-  border-bottom:1.4px solid var(--range-color, var(--green));
+  border-top: 1.4px solid var(--range-color, var(--green));
+  border-bottom: 1.4px solid var(--range-color, var(--green));
 
-  margin-bottom:0px;
-  position:relative;
-  isolation:isolate;
+  position: relative;
+  --lane: 0;
+  --lane-step: 14px;
+  transform: translateY(calc(var(--lane) * -1 * var(--lane-step)));
 
-  --lane:0;
-  --lane-step:14px;
-  transform:translateY(calc(var(--lane) * -1 * var(--lane-step)));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.10),
+    0 1px 2px rgba(43,42,40,0.12);
+}
+
+/* Add this to make higher lanes appear more vivid */
+.range-bar {
+  opacity: calc(0.7 + (var(--lane) * 0.1)); /* Each lane becomes more opaque */
+  filter: brightness(calc(1 + (var(--lane) * 0.1))); /* Each lane becomes brighter */
+}
 
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.22),
