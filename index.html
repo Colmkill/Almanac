@@ -632,7 +632,6 @@
     }
     return cells;
   }
-
 function renderGrid() {
   document.getElementById('monthLabel').textContent = MONTHS[state.viewMonth] + ' ' + state.viewYear;
   var grid = document.getElementById('grid');
@@ -733,7 +732,7 @@ function renderGrid() {
       rowHeights[rIdx] = 56 + (laneCount - 1) * 14;
     }
 
-    // Render bars
+    // Render bars with overlap
     bars.forEach(function(barInfo) {
       var ev = barInfo.ev;
       var startD = rowDates[barInfo.startCol];
@@ -753,7 +752,10 @@ function renderGrid() {
 
       bar.style.setProperty('--lane', barInfo.lane);
       bar.style.gridRow = rIdx + 1;
-      bar.style.gridColumn = (barInfo.startCol + 1) + ' / ' + (barInfo.endCol + 2); // Fixed: +2 to span to the next grid line
+
+      // Extend into adjacent columns for overlap
+      var extend = 0.2;
+      bar.style.gridColumn = (barInfo.startCol + 1 - extend) + ' / ' + (barInfo.endCol + 2 + extend);
 
       // Reset margins for caps
       if (isTrueStart) bar.style.marginLeft = '0';
@@ -768,6 +770,7 @@ function renderGrid() {
     return 'minmax(' + h + 'px, auto)';
   }).join(' ');
 }
+  //////////////////////////////////////////////////
   function renderUpcoming(){
     var wrap = document.getElementById('upcomingWrap');
     var today = todayMD();
